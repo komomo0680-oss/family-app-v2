@@ -3,49 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小西家</title>
+    <title>小西家 - わんこファミリーアプリ</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #f7f7f7;
-            color: #333333;
+            background-color: #fdfbf7; /* 温かみのあるアイボリー */
+            color: #4a3b32; /* 優しいブラウン */
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             min-height: 100vh;
             padding: 20px;
         }
         .container {
             background: #ffffff;
-            padding: 40px 30px;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(139, 90, 43, 0.08);
             text-align: center;
-            max-width: 400px;
+            max-width: 480px;
             width: 100%;
+            border: 2px solid #f3e5d8;
         }
-        h1 { font-size: 28px; margin-bottom: 12px; font-weight: 700; letter-spacing: 2px; }
-        p { color: #666666; font-size: 15px; margin-bottom: 25px; }
+        h1 { font-size: 26px; margin-bottom: 8px; font-weight: 700; color: #8b5a2b; letter-spacing: 1px; }
+        .subtitle { font-size: 14px; color: #8c7355; margin-bottom: 20px; }
+        
+        /* ボタン共通（肉球をイメージした丸み） */
         .btn {
-            background-color: #1a73e8;
+            background-color: #d97706; /* 温かいオレンジブラウン */
             color: #ffffff;
             border: none;
-            padding: 15px 24px;
-            border-radius: 8px;
+            padding: 14px 20px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: bold;
             width: 100%;
             cursor: pointer;
-            transition: background-color 0.2s;
+            box-shadow: 0 4px 10px rgba(217, 119, 6, 0.2);
+            transition: background-color 0.2s, transform 0.1s;
         }
-        .btn:hover { background-color: #1557b0; }
-        .btn-logout { background-color: #dc3545; margin-top: 15px; }
-        .btn-logout:hover { background-color: #bb2d3b; }
+        .btn:hover { background-color: #b45309; transform: translateY(-1px); }
+        .btn-logout { background-color: #9ca3af; margin-top: 20px; box-shadow: none; }
+        .btn-logout:hover { background-color: #6b7280; }
+
         .hidden { display: none !important; }
-        .user-info { margin-bottom: 20px; }
-        .user-photo { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 15px; object-fit: cover; }
+        
+        /* ユーザー情報・アイコン */
+        .user-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fef3c7;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .user-photo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #d97706; }
+        .user-name { font-weight: bold; font-size: 15px; color: #78350f; text-align: left; }
+
+        /* タブナビゲーション */
+        .tab-nav {
+            display: flex;
+            gap: 4px;
+            background: #f3e5d8;
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 8px 4px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #8c7355;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background: #ffffff;
+            color: #d97706;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* タブの中身エリア */
+        .tab-content {
+            display: none;
+            text-align: left;
+            background: #fafaf9;
+            padding: 16px;
+            border-radius: 12px;
+            min-height: 200px;
+            border: 1px dashed #d6d3d1;
+        }
+        .tab-content.active { display: block; }
+        .tab-title { font-size: 15px; font-weight: bold; margin-bottom: 10px; color: #78350f; display: flex; align-items: center; gap: 6px; }
     </style>
 </head>
 <body>
@@ -53,21 +115,65 @@
     <div class="container">
         <!-- ログイン前画面 -->
         <div id="login-section">
-            <h1>小西家</h1>
-            <p>ファミリーアプリへようこそ</p>
-            <button class="btn" id="login-btn">Googleでログイン</button>
+            <h1>🐾 小西家 🐾</h1>
+            <p class="subtitle">わんことうるおう、家族の共有アプリ</p>
+            <button class="btn" id="login-btn">🐶 Googleでログイン</button>
         </div>
 
-        <!-- ログイン後画面 -->
+        <!-- ログイン後画面（メインアプリ） -->
         <div id="user-section" class="hidden">
-            <img id="user-photo" class="user-photo" alt="ユーザーアイコン">
-            <p><strong id="user-name"></strong> さん、こんにちは！</p>
-            <p>ログインに成功しました。</p>
+            <div class="user-header">
+                <div class="user-profile">
+                    <img id="user-photo" class="user-photo" alt="アイコン">
+                    <div class="user-name"><span id="user-name"></span> さん</div>
+                </div>
+                <span style="font-size: 20px;">🐶🐾</span>
+            </div>
+
+            <!-- タブ切り替えボタン -->
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="switchTab('schedule')">予定</button>
+                <button class="tab-btn" onclick="switchTab('todo')">TODO</button>
+                <button class="tab-btn" onclick="switchTab('goals')">目標</button>
+                <button class="tab-btn" onclick="switchTab('contact')">連絡事項</button>
+                <button class="tab-btn" onclick="switchTab('memo')">思考整理</button>
+            </div>
+
+            <!-- 1. 予定タブ -->
+            <div id="schedule" class="tab-content active">
+                <div class="tab-title">📅 家族の予定</div>
+                <p style="font-size: 13px; color: #78716c;">ここにGoogleカレンダーから「日付・予定・誰の予定か」がリスト表示されます。</p>
+            </div>
+
+            <!-- 2. TODOタブ -->
+            <div id="todo" class="tab-content">
+                <div class="tab-title">📝 TODOリスト</div>
+                <p style="font-size: 13px; color: #78716c;">共有 / 自分用を切り替えてタスクを管理できます。</p>
+            </div>
+
+            <!-- 3. 目標タブ -->
+            <div id="goals" class="tab-content">
+                <div class="tab-title">🎯 個人目標</div>
+                <p style="font-size: 13px; color: #78716c;">長期目標と短期目標を自分専用にメモできます（非公開）。</p>
+            </div>
+
+            <!-- 4. 連絡事項タブ -->
+            <div id="contact" class="tab-content">
+                <div class="tab-title">💬 連絡事項</div>
+                <p style="font-size: 13px; color: #78716c;">家族みんなでシェアする掲示板です。</p>
+            </div>
+
+            <!-- 5. 思考整理タブ -->
+            <div id="memo" class="tab-content">
+                <div class="tab-title">🌳 思考の整理ツリー</div>
+                <p style="font-size: 13px; color: #78716c;">上位層と下位層を階層式に整理できます。</p>
+            </div>
+
             <button class="btn btn-logout" id="logout-btn">ログアウト</button>
         </div>
     </div>
 
-    <!-- Firebase SDK (インポート) -->
+    <!-- Firebase SDK & アプリのロジック -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -92,10 +198,9 @@
         const userName = document.getElementById("user-name");
         const userPhoto = document.getElementById("user-photo");
 
-        // 1. ログイン状態のリアルタイム監視
+        // ログイン状態の監視
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // ログイン中：ログイン画面を隠して、ユーザー画面を表示
                 loginSection.classList.add("hidden");
                 userSection.classList.remove("hidden");
                 userName.textContent = user.displayName || "ユーザー";
@@ -103,23 +208,37 @@
                     userPhoto.src = user.photoURL;
                 }
             } else {
-                // ログアウト中：ログイン画面を表示
                 loginSection.classList.remove("hidden");
                 userSection.classList.add("hidden");
             }
         });
 
-        // 2. ポップアップでGoogleログイン実行
+        // ログイン実行（ポップアップ）
         loginBtn.addEventListener("click", () => {
             signInWithPopup(auth, provider).catch((error) => {
                 alert("ログインエラー (" + error.code + "): " + error.message);
             });
         });
 
-        // 3. ログアウト実行
+        // ログアウト実行
         logoutBtn.addEventListener("click", () => {
             signOut(auth);
         });
+    </script>
+
+    <!-- タブ切り替え用のJavaScript関数 -->
+    <script>
+        function switchTab(tabId) {
+            // すべてのタブの中身とボタンのactiveを消す
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            // 選択されたタブを表示
+            document.getElementById(tabId).classList.add('active');
+            
+            // 押されたボタンにactiveをつける
+            event.currentTarget.classList.add('active');
+        }
     </script>
 </body>
 </html>
