@@ -94,11 +94,21 @@
     const userPhoto = document.getElementById("user-photo");
 
     // リダイレクト結果の受け取り処理
-    getRedirectResult(auth).catch((error) => {
-      if (error.code) {
+    // リダイレクト結果の受け取り処理
+getRedirectResult(auth)
+  .then((result) => {
+    // ログイン成功時
+    if (result && result.user) {
+      console.log("ログイン成功:", result.user.displayName);
+      // ここでログイン後の画面表示に切り替える（必要に応じて追加）
+    }
+  })
+  .catch((error) => {
+    if (error.code) {
         alert("ログインエラー (" + error.code + "): " + error.message);
-      }
-    });
+    }
+});
+
 
     // ログイン実行
     loginBtn.addEventListener("click", () => {
