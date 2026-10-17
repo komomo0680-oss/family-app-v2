@@ -93,45 +93,35 @@
     const userName = document.getElementById("user-name");
     const userPhoto = document.getElementById("user-photo");
 
-    // リダイレクト結果の受け取り処理
-    // リダイレクト結果の受け取り処理
-getRedirectResult(auth)
-  .then((result) => {
-    // ログイン成功時
-    if (result && result.user) {
-      console.log("ログイン成功:", result.user.displayName);
-      // ここでログイン後の画面表示に切り替える（必要に応じて追加）
-    }
-  })
-  .catch((error) => {
-    if (error.code) {
-        alert("ログインエラー (" + error.code + "): " + error.message);
-    }
-});
-
-
-    // ログイン実行
-    loginBtn.addEventListener("click", () => {
-      signInWithRedirect(auth, provider);
-    });
-
-    // ログアウト実行
-    logoutBtn.addEventListener("click", () => {
-      signOut(auth);
-    });
-
-    // ログイン状態の監視
+    // ログイン状態の監視と画面切り替え（ここが重要です！）
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        userName.textContent = user.displayName;
-        userPhoto.src = user.photoURL || "https://via.placeholder.com/64";
+        // ログインしている時：ログイン画面を隠し、ユーザー情報を表示
         loginSection.classList.add("hidden");
         userSection.classList.remove("hidden");
+        userName.textContent = user.displayName || "ユーザー";
+        if (user.photoURL) {
+          userPhoto.src = user.photoURL;
+        }
       } else {
+        // ログアウトしている時：ログイン画面を表示、ユーザー情報を隠す
         loginSection.classList.remove("hidden");
         userSection.classList.add("hidden");
       }
     });
-  </script>
-</body>
-</html>
+
+    // リダイレクト結果の受け取り処理
+    getRedirectResult(auth).catch((error) => {
+      if (error && error.code) {
+        alert("ログインエラー (" + error.code + "): " + error.message);
+      }
+    });
+
+    // ボタンのクリックイベント設定
+    loginBtn.addEventListener("click", () => {
+      signInWithRedirect(auth, provider);
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth);
+    });
