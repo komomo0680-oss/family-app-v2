@@ -70,7 +70,7 @@
     <!-- Firebase SDK (インポート) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDuR7NVKyrWu6MMegnhJI3qTr4ceiPngfE",
@@ -92,10 +92,10 @@
         const userName = document.getElementById("user-name");
         const userPhoto = document.getElementById("user-photo");
 
-        // 1. ログイン状態の監視（自動で画面を切り替える）
+        // 1. ログイン状態のリアルタイム監視
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // ログイン中の表示
+                // ログイン中：ログイン画面を隠して、ユーザー画面を表示
                 loginSection.classList.add("hidden");
                 userSection.classList.remove("hidden");
                 userName.textContent = user.displayName || "ユーザー";
@@ -103,24 +103,20 @@
                     userPhoto.src = user.photoURL;
                 }
             } else {
-                // 未ログインの表示
+                // ログアウト中：ログイン画面を表示
                 loginSection.classList.remove("hidden");
                 userSection.classList.add("hidden");
             }
         });
 
-        // 2. リダイレクト結果の受け取り
-        getRedirectResult(auth).catch((error) => {
-            if (error && error.code) {
-                alert("ログインエラー (" + error.code + "): " + error.message);
-            }
-        });
-
-        // 3. ボタンのイベント設定
+        // 2. ポップアップでGoogleログイン実行
         loginBtn.addEventListener("click", () => {
-            signInWithRedirect(auth, provider);
+            signInWithPopup(auth, provider).catch((error) => {
+                alert("ログインエラー (" + error.code + "): " + error.message);
+            });
         });
 
+        // 3. ログアウト実行
         logoutBtn.addEventListener("click", () => {
             signOut(auth);
         });
