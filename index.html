@@ -71,10 +71,9 @@
   <!-- Firebase Auth SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-    // ★ ここをご自身のFirebase設定情報に書き換えてください
-     const firebaseConfig = {
+    const firebaseConfig = {
       apiKey: "AIzaSyDuR7NVkyrWu6MmegnHJI3Tr4ceiPngfE",
       authDomain: "konishi-family.firebaseapp.com",
       projectId: "konishi-family",
@@ -82,7 +81,6 @@
       messagingSenderId: "391240149978",
       appId: "1:391240149978:web:34e6b1e63f7752030d6ee3"
     };
-
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -95,11 +93,16 @@
     const userName = document.getElementById("user-name");
     const userPhoto = document.getElementById("user-photo");
 
-    // ログイン実行
+    // リダイレクト結果の受け取り処理
+    getRedirectResult(auth).catch((error) => {
+      if (error.code) {
+        alert("ログインエラー (" + error.code + "): " + error.message);
+      }
+    });
+
+    // ログイン実行（画面遷移方式に変更）
     loginBtn.addEventListener("click", () => {
-      signInWithPopup(auth, provider).catch(error => {
-        alert("ログインエラー: " + error.message);
-      });
+      signInWithRedirect(auth, provider);
     });
 
     // ログアウト実行
