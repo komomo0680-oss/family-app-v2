@@ -8,64 +8,60 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #fdfbf7; /* 温かみのあるアイボリー */
-            color: #4a3b32; /* 優しいブラウン */
+            background-color: #fdfbf7;
+            color: #4a3b32;
             display: flex;
             flex-direction: column;
-            align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 12px;
         }
+        /* 画面いっぱいに広げるコンテナ */
         .container {
             background: #ffffff;
-            padding: 30px 20px;
-            border-radius: 20px;
-            box-shadow: 0 8px 24px rgba(139, 90, 43, 0.08);
-            text-align: center;
-            max-width: 480px;
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(139, 90, 43, 0.06);
             width: 100%;
+            max-width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             border: 2px solid #f3e5d8;
         }
-        h1 { font-size: 26px; margin-bottom: 8px; font-weight: 700; color: #8b5a2b; letter-spacing: 1px; }
-        .subtitle { font-size: 14px; color: #8c7355; margin-bottom: 20px; }
+        h1 { font-size: 22px; margin-bottom: 4px; font-weight: 700; color: #8b5a2b; text-align: center; }
+        .subtitle { font-size: 13px; color: #8c7355; margin-bottom: 16px; text-align: center; }
         
-        /* ボタン共通（肉球をイメージした丸み） */
+        /* ボタン */
         .btn {
-            background-color: #d97706; /* 温かいオレンジブラウン */
+            background-color: #d97706;
             color: #ffffff;
             border: none;
-            padding: 14px 20px;
+            padding: 14px;
             border-radius: 12px;
             font-size: 16px;
             font-weight: bold;
             width: 100%;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(217, 119, 6, 0.2);
-            transition: background-color 0.2s, transform 0.1s;
         }
-        .btn:hover { background-color: #b45309; transform: translateY(-1px); }
-        .btn-logout { background-color: #9ca3af; margin-top: 20px; box-shadow: none; }
-        .btn-logout:hover { background-color: #6b7280; }
+        .btn:hover { background-color: #b45309; }
+        .btn-logout { background-color: #9ca3af; margin-top: auto; }
 
         .hidden { display: none !important; }
         
-        /* ユーザー情報・アイコン */
+        /* ユーザー情報ヘッダー */
         .user-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             background: #fef3c7;
-            padding: 12px 16px;
+            padding: 10px 14px;
             border-radius: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
         }
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .user-photo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #d97706; }
-        .user-name { font-weight: bold; font-size: 15px; color: #78350f; text-align: left; }
+        .user-profile { display: flex; align-items: center; gap: 10px; }
+        .user-photo { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #d97706; }
+        .user-name { font-weight: bold; font-size: 14px; color: #78350f; }
 
         /* タブナビゲーション */
         .tab-nav {
@@ -74,21 +70,20 @@
             background: #f3e5d8;
             padding: 4px;
             border-radius: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
             overflow-x: auto;
         }
         .tab-btn {
             flex: 1;
             background: transparent;
             border: none;
-            padding: 8px 4px;
-            font-size: 12px;
+            padding: 8px 2px;
+            font-size: 11px;
             font-weight: bold;
             color: #8c7355;
             border-radius: 8px;
             cursor: pointer;
             white-space: nowrap;
-            transition: all 0.2s;
         }
         .tab-btn.active {
             background: #ffffff;
@@ -96,38 +91,55 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-        /* タブの中身エリア */
+        /* タブの中身エリア（ウィジェット風カード） */
         .tab-content {
             display: none;
-            text-align: left;
-            background: #fafaf9;
-            padding: 16px;
-            border-radius: 12px;
-            min-height: 200px;
-            border: 1px dashed #d6d3d1;
+            flex: 1;
+            flex-direction: column;
+            gap: 10px;
         }
-        .tab-content.active { display: block; }
-        .tab-title { font-size: 15px; font-weight: bold; margin-bottom: 10px; color: #78350f; display: flex; align-items: center; gap: 6px; }
+        .tab-content.active { display: flex; }
+
+        .widget-card {
+            background: #fafaf9;
+            border: 1px solid #e7e5e4;
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .widget-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #78350f;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .widget-body {
+            font-size: 13px;
+            color: #57534e;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
         <!-- ログイン前画面 -->
-        <div id="login-section">
+        <div id="login-section" style="margin: auto; text-align: max(0px, 20px);">
             <h1>🐾 小西家 🐾</h1>
             <p class="subtitle">わんことうるおう、家族の共有アプリ</p>
             <button class="btn" id="login-btn">🐶 Googleでログイン</button>
         </div>
 
         <!-- ログイン後画面（メインアプリ） -->
-        <div id="user-section" class="hidden">
+        <div id="user-section" class="hidden" style="display: flex; flex-direction: column; flex: 1;">
             <div class="user-header">
                 <div class="user-profile">
                     <img id="user-photo" class="user-photo" alt="アイコン">
                     <div class="user-name"><span id="user-name"></span> さん</div>
                 </div>
-                <span style="font-size: 20px;">🐶🐾</span>
+                <span style="font-size: 18px;">🐶🐾</span>
             </div>
 
             <!-- タブ切り替えボタン -->
@@ -141,35 +153,45 @@
 
             <!-- 1. 予定タブ -->
             <div id="schedule" class="tab-content active">
-                <div class="tab-title">📅 家族の予定</div>
-                <p style="font-size: 13px; color: #78716c;">ここにGoogleカレンダーから「日付・予定・誰の予定か」がリスト表示されます。</p>
+                <div class="widget-card">
+                    <div class="widget-title">📅 家族の予定（カレンダー連携）</div>
+                    <div class="widget-body">Googleカレンダーから「日付・予定・誰の予定か」をここにリスト表示します。</div>
+                </div>
             </div>
 
             <!-- 2. TODOタブ -->
             <div id="todo" class="tab-content">
-                <div class="tab-title">📝 TODOリスト</div>
-                <p style="font-size: 13px; color: #78716c;">共有 / 自分用を切り替えてタスクを管理できます。</p>
+                <div class="widget-card">
+                    <div class="widget-title">📝 TODOリスト</div>
+                    <div class="widget-body">「共有する」ボタン付きのタスク管理ウィジェットをここに配置します。</div>
+                </div>
             </div>
 
             <!-- 3. 目標タブ -->
             <div id="goals" class="tab-content">
-                <div class="tab-title">🎯 個人目標</div>
-                <p style="font-size: 13px; color: #78716c;">長期目標と短期目標を自分専用にメモできます（非公開）。</p>
+                <div class="widget-card">
+                    <div class="widget-title">🎯 長期・短期目標（自分のみ）</div>
+                    <div class="widget-body">自分だけが見られる非公開の目標管理ウィジェットです。</div>
+                </div>
             </div>
 
             <!-- 4. 連絡事項タブ -->
             <div id="contact" class="tab-content">
-                <div class="tab-title">💬 連絡事項</div>
-                <p style="font-size: 13px; color: #78716c;">家族みんなでシェアする掲示板です。</p>
+                <div class="widget-card">
+                    <div class="widget-title">💬 家族の連絡掲示板</div>
+                    <div class="widget-body">誰からの連絡かアイコン付きでわかるメッセージボードです。</div>
+                </div>
             </div>
 
             <!-- 5. 思考整理タブ -->
             <div id="memo" class="tab-content">
-                <div class="tab-title">🌳 思考の整理ツリー</div>
-                <p style="font-size: 13px; color: #78716c;">上位層と下位層を階層式に整理できます。</p>
+                <div class="widget-card">
+                    <div class="widget-title">🌳 思考の階層整理ツリー</div>
+                    <div class="widget-body">上位層と下位層を階層的に整理できるメモウィジェットです。</div>
+                </div>
             </div>
 
-            <button class="btn btn-logout" id="logout-btn">ログアウト</button>
+            <button class="btn btn-logout" id="logout-btn" style="margin-top: 15px;">ログアウト</button>
         </div>
     </div>
 
@@ -198,7 +220,6 @@
         const userName = document.getElementById("user-name");
         const userPhoto = document.getElementById("user-photo");
 
-        // ログイン状態の監視
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 loginSection.classList.add("hidden");
@@ -213,30 +234,22 @@
             }
         });
 
-        // ログイン実行（ポップアップ）
         loginBtn.addEventListener("click", () => {
             signInWithPopup(auth, provider).catch((error) => {
                 alert("ログインエラー (" + error.code + "): " + error.message);
             });
         });
 
-        // ログアウト実行
         logoutBtn.addEventListener("click", () => {
             signOut(auth);
         });
     </script>
 
-    <!-- タブ切り替え用のJavaScript関数 -->
     <script>
         function switchTab(tabId) {
-            // すべてのタブの中身とボタンのactiveを消す
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-
-            // 選択されたタブを表示
             document.getElementById(tabId).classList.add('active');
-            
-            // 押されたボタンにactiveをつける
             event.currentTarget.classList.add('active');
         }
     </script>
