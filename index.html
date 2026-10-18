@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>小西家 - わんこファミリーアプリ</title>
+    <!-- スマホ・PWA用フルスクリーン設定 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="小西家">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -15,7 +20,6 @@
             min-height: 100vh;
             padding: 12px;
         }
-        /* 画面いっぱいに広げるコンテナ */
         .container {
             background: #ffffff;
             padding: 16px;
@@ -28,28 +32,39 @@
             flex-direction: column;
             border: 2px solid #f3e5d8;
         }
-        h1 { font-size: 22px; margin-bottom: 4px; font-weight: 700; color: #8b5a2b; text-align: center; }
+        .app-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .dog-icon-svg {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 6px;
+        }
+        h1 { font-size: 22px; font-weight: 700; color: #8b5a2b; text-align: center; }
         .subtitle { font-size: 13px; color: #8c7355; margin-bottom: 16px; text-align: center; }
         
-        /* ボタン */
         .btn {
             background-color: #d97706;
             color: #ffffff;
             border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 16px;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 15px;
             font-weight: bold;
             width: 100%;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(217, 119, 6, 0.2);
+            transition: opacity 0.2s;
         }
-        .btn:hover { background-color: #b45309; }
+        .btn:hover { opacity: 0.9; }
+        .btn-secondary { background-color: #8c7355; box-shadow: none; }
         .btn-logout { background-color: #9ca3af; margin-top: auto; }
 
         .hidden { display: none !important; }
         
-        /* ユーザー情報ヘッダー */
         .user-header {
             display: flex;
             align-items: center;
@@ -63,7 +78,6 @@
         .user-photo { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #d97706; }
         .user-name { font-weight: bold; font-size: 14px; color: #78350f; }
 
-        /* タブナビゲーション */
         .tab-nav {
             display: flex;
             gap: 4px;
@@ -91,12 +105,11 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-        /* タブの中身エリア（ウィジェット風カード） */
         .tab-content {
             display: none;
             flex: 1;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
         .tab-content.active { display: flex; }
 
@@ -111,14 +124,50 @@
             font-size: 14px;
             font-weight: bold;
             color: #78350f;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 6px;
         }
-        .widget-body {
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .input-field {
+            padding: 10px;
+            border: 1px solid #d6d3d1;
+            border-radius: 8px;
             font-size: 13px;
-            color: #57534e;
+            width: 100%;
+        }
+        
+        .schedule-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .schedule-item {
+            background: #ffffff;
+            border: 1px solid #f3e5d8;
+            border-left: 4px solid #d97706;
+            padding: 10px 12px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .schedule-date { font-size: 11px; color: #8c7355; font-weight: bold; }
+        .schedule-text { font-size: 13px; color: #4a3b32; font-weight: bold; }
+        .schedule-owner {
+            font-size: 11px;
+            background: #fef3c7;
+            color: #78350f;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -126,7 +175,23 @@
 
     <div class="container">
         <!-- ログイン前画面 -->
-        <div id="login-section" style="margin: auto; text-align: max(0px, 20px);">
+        <div id="login-section" style="margin: auto; text-align: center;">
+            <!-- 白黒ワンちゃんSVGアイコン -->
+            <svg class="dog-icon-svg" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="46" fill="#4b5563"/>
+                <path d="M25 35 Q30 65 50 82 Q70 65 75 35 Q50 25 25 35 Z" fill="#ffffff"/>
+                <path d="M25 35 Q20 20 38 25 Q35 45 25 35 Z" fill="#1f2937"/>
+                <circle cx="40" cy="45" r="4" fill="#1f2937"/>
+                <circle cx="60" cy="45" r="4" fill="#1f2937"/>
+                <ellipse cx="50" cy="53" rx="6" ry="4" fill="#1f2937"/>
+                <!-- 肉球マーク -->
+                <g fill="#1f2937">
+                    <ellipse cx="72" cy="58" rx="5" ry="4"/>
+                    <circle cx="68" cy="50" r="2"/>
+                    <circle cx="73" cy="49" r="2"/>
+                    <circle cx="77" cy="52" r="2"/>
+                </g>
+            </svg>
             <h1>🐾 小西家 🐾</h1>
             <p class="subtitle">わんことうるおう、家族の共有アプリ</p>
             <button class="btn" id="login-btn">🐶 Googleでログイン</button>
@@ -139,7 +204,15 @@
                     <img id="user-photo" class="user-photo" alt="アイコン">
                     <div class="user-name"><span id="user-name"></span> さん</div>
                 </div>
-                <span style="font-size: 18px;">🐶🐾</span>
+                <!-- 小型ヘッダー用わんちゃんアイコン -->
+                <svg style="width: 28px; height: 28px;" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="46" fill="#4b5563"/>
+                    <path d="M25 35 Q30 65 50 82 Q70 65 75 35 Q50 25 25 35 Z" fill="#ffffff"/>
+                    <path d="M25 35 Q20 20 38 25 Q35 45 25 35 Z" fill="#1f2937"/>
+                    <circle cx="40" cy="45" r="4" fill="#1f2937"/>
+                    <circle cx="60" cy="45" r="4" fill="#1f2937"/>
+                    <ellipse cx="50" cy="53" rx="6" ry="4" fill="#1f2937"/>
+                </svg>
             </div>
 
             <!-- タブ切り替えボタン -->
@@ -153,17 +226,33 @@
 
             <!-- 1. 予定タブ -->
             <div id="schedule" class="tab-content active">
+                
+                <!-- 予定手入力フォーム -->
                 <div class="widget-card">
-                    <div class="widget-title">📅 家族の予定（カレンダー連携）</div>
-                    <div class="widget-body">Googleカレンダーから「日付・予定・誰の予定か」をここにリスト表示します。</div>
+                    <div class="widget-title">➕ 予定を追加（自動共有）</div>
+                    <div class="input-group">
+                        <input type="date" id="event-date" class="input-field">
+                        <input type="text" id="event-title" class="input-field" placeholder="予定の内容 (例: 買い物、病院)">
+                        <input type="text" id="event-owner" class="input-field" placeholder="誰の予定か (例: 小西家、仕事アプリ)">
+                        <button class="btn" id="add-schedule-btn">予定を追加する</button>
+                    </div>
                 </div>
+
+                <!-- リアルタイム同期一覧 -->
+                <div class="widget-card">
+                    <div class="widget-title">📅 家族・連携アプリの共通予定</div>
+                    <div id="schedule-container" class="schedule-list">
+                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- 2. TODOタブ -->
             <div id="todo" class="tab-content">
                 <div class="widget-card">
                     <div class="widget-title">📝 TODOリスト</div>
-                    <div class="widget-body">「共有する」ボタン付きのタスク管理ウィジェットをここに配置します。</div>
+                    <div class="widget-body">タスク管理ウィジェット</div>
                 </div>
             </div>
 
@@ -171,7 +260,7 @@
             <div id="goals" class="tab-content">
                 <div class="widget-card">
                     <div class="widget-title">🎯 長期・短期目標（自分のみ）</div>
-                    <div class="widget-body">自分だけが見られる非公開の目標管理ウィジェットです。</div>
+                    <div class="widget-body">目標管理ウィジェット</div>
                 </div>
             </div>
 
@@ -179,7 +268,7 @@
             <div id="contact" class="tab-content">
                 <div class="widget-card">
                     <div class="widget-title">💬 家族の連絡掲示板</div>
-                    <div class="widget-body">誰からの連絡かアイコン付きでわかるメッセージボードです。</div>
+                    <div class="widget-body">メッセージボード</div>
                 </div>
             </div>
 
@@ -187,7 +276,7 @@
             <div id="memo" class="tab-content">
                 <div class="widget-card">
                     <div class="widget-title">🌳 思考の階層整理ツリー</div>
-                    <div class="widget-body">上位層と下位層を階層的に整理できるメモウィジェットです。</div>
+                    <div class="widget-body">思考整理メモウィジェット</div>
                 </div>
             </div>
 
@@ -195,10 +284,11 @@
         </div>
     </div>
 
-    <!-- Firebase SDK & アプリのロジック -->
+    <!-- Firebase SDK (Auth & Firestore) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDuR7NVKyrWu6MMegnhJI3qTr4ceiPngfE",
@@ -211,6 +301,7 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
         const loginSection = document.getElementById("login-section");
@@ -219,15 +310,22 @@
         const logoutBtn = document.getElementById("logout-btn");
         const userName = document.getElementById("user-name");
         const userPhoto = document.getElementById("user-photo");
+        const addScheduleBtn = document.getElementById("add-schedule-btn");
+        const scheduleContainer = document.getElementById("schedule-container");
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 loginSection.classList.add("hidden");
                 userSection.classList.remove("hidden");
                 userName.textContent = user.displayName || "ユーザー";
-                if (user.photoURL) {
-                    userPhoto.src = user.photoURL;
+                if (user.photoURL) userPhoto.src = user.photoURL;
+
+                if (!document.getElementById("event-owner").value) {
+                    document.getElementById("event-owner").value = user.displayName || "小西家";
                 }
+
+                // リアルタイムデータベース(Firestore)の予定監視
+                listenToSchedules();
             } else {
                 loginSection.classList.remove("hidden");
                 userSection.classList.add("hidden");
@@ -236,13 +334,61 @@
 
         loginBtn.addEventListener("click", () => {
             signInWithPopup(auth, provider).catch((error) => {
-                alert("ログインエラー (" + error.code + "): " + error.message);
+                alert("ログインエラー: " + error.message);
             });
         });
 
-        logoutBtn.addEventListener("click", () => {
-            signOut(auth);
+        logoutBtn.addEventListener("click", () => signOut(auth));
+
+        // 予定の追加（Firestoreに送信）
+        addScheduleBtn.addEventListener("click", async () => {
+            const date = document.getElementById('event-date').value;
+            const title = document.getElementById('event-title').value;
+            const owner = document.getElementById('event-owner').value;
+
+            if (!date || !title) {
+                alert('日付と予定内容を入力してください');
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "schedules"), {
+                    date: date,
+                    title: title,
+                    owner: owner || "小西家",
+                    createdAt: new Date()
+                });
+                document.getElementById('event-date').value = '';
+                document.getElementById('event-title').value = '';
+            } catch (e) {
+                alert("予定の保存に失敗しました: " + e.message);
+            }
         });
+
+        // リアルタイムで同期して表示
+        function listenToSchedules() {
+            const q = query(collection(db, "schedules"), orderBy("date", "asc"));
+            onSnapshot(q, (snapshot) => {
+                scheduleContainer.innerHTML = '';
+                if (snapshot.empty) {
+                    scheduleContainer.innerHTML = '<div style="font-size: 12px; color: #8c7355;">予定はありません</div>';
+                    return;
+                }
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const el = document.createElement('div');
+                    el.className = 'schedule-item';
+                    el.innerHTML = `
+                        <div>
+                            <div class="schedule-date">${data.date}</div>
+                            <div class="schedule-text">${data.title}</div>
+                        </div>
+                        <div class="schedule-owner">${data.owner}</div>
+                    `;
+                    scheduleContainer.appendChild(el);
+                });
+            });
+        }
     </script>
 
     <script>
