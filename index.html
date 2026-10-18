@@ -32,13 +32,6 @@
             flex-direction: column;
             border: 2px solid #f3e5d8;
         }
-        .app-header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        /* ワンちゃんアイコンを大きく表示するスタイル */
         .dog-icon-large {
             width: 120px;
             height: 120px;
@@ -180,8 +173,7 @@
     <div class="container">
         <!-- ログイン前画面 -->
         <div id="login-section" style="margin: auto; text-align: center; display: flex; flex-direction: column; align-items: center; padding: 20px;">
-            <!-- アップロードしていただいたワンちゃんの画像を大きく配置 -->
-            <img src="1792306567992.jpg" class="dog-icon-large" alt="小西家わんこ">
+            <img src="1792306567992.jpg" class="dog-icon-large" alt="小西家わんこ" onerror="this.style.display='none'">
             <h1>🐾 小西家 🐾</h1>
             <p class="subtitle">わんことうるおう、家族の共有アプリ</p>
             <button class="btn" id="login-btn">🐶 Googleでログイン</button>
@@ -194,8 +186,7 @@
                     <img id="user-photo" class="user-photo" alt="アイコン">
                     <div class="user-name"><span id="user-name"></span> さん</div>
                 </div>
-                <!-- ヘッダーのワンちゃんアイコン -->
-                <img src="1792306567992.jpg" style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid #d97706;" alt="小西家わんこ">
+                <img src="1792306567992.jpg" style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid #d97706;" alt="小西家わんこ" onerror="this.style.display='none'">
             </div>
 
             <!-- タブ切り替えボタン -->
@@ -209,8 +200,6 @@
 
             <!-- 1. 予定タブ -->
             <div id="schedule" class="tab-content active">
-                
-                <!-- 予定手入力フォーム -->
                 <div class="widget-card">
                     <div class="widget-title">➕ 予定を追加（自動共有）</div>
                     <div class="input-group">
@@ -221,14 +210,12 @@
                     </div>
                 </div>
 
-                <!-- リアルタイム同期一覧 -->
                 <div class="widget-card">
                     <div class="widget-title">📅 家族・連携アプリの共通予定</div>
                     <div id="schedule-container" class="schedule-list">
-                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
+                        <div style="font-size: 12px; color: #8c7355;">ログイン後に自動読み込みされます</div>
                     </div>
                 </div>
-
             </div>
 
             <!-- 2. TODOタブ -->
@@ -284,7 +271,7 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
+        let db = null;
         const provider = new GoogleAuthProvider();
 
         const loginSection = document.getElementById("login-section");
@@ -296,6 +283,107 @@
         const addScheduleBtn = document.getElementById("add-schedule-btn");
         const scheduleContainer = document.getElementById("schedule-container");
 
+        // ログインボタンのクリックイベント
+        loginBtn.addEventListener("click", () => {
+            signInWithPopup(auth, provider).catch((error) => {
+                alert("ログインエラー: " + error.message);
+            });
+        });
+
+        logoutBtn.addEventListener("click", () => signOut(auth));
+
+        // 認証状態の監視
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                
+                loginSection.classList.add("hidden");
+                userSection.classList.remove("hidden");
+                userName.textContent = user.displayName || "ユーザー";
+                if (user.photoURL) userPhoto.src = user.photoURL;
+
+                if (!document.getElementById("event-owner").value) {
+                    document.getElementById("event-owner").value = user.displayName || "小西家";
+                }
+
+                // Firestoreの初期化とデータ読み込み
+                try {
+                    db = getFirestore(app);
+                    listenToSchedules();
+                } catch (e) {
+                    console.error("Firestore初期化エラー:", e);
+                }
+            } else {
+                loginSection.classList.remove("hidden");
+                userSection.classList.add("hidden");
+            }
+        });
+
+        // 予定の追加
+        addScheduleBtn.addEventListener("click", async () => {
+            const date = document.getElementById('event-date').value;
+            const title = document.getElementById('event-title').value;
+            const owner = document.getElementById('event-owner').value;
+
+            if (!date || !title) {
+                alert('日付と予定内容を入力してください');
+                return;
+            }
+
+            if (!db) {
+                alert("データベースが準備できていません");
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "schedules"), {
+                    date: date,
+                    title: title,
+                    owner: owner || "小西家",
+                    createdAt: new Date()
+                });
+                document.getElementById('event-date').value = '';
+                document.getElementById('event-title').value = '';
+            } catch (e) {
+                alert("予定の保存に失敗しました: " + e.message);
+            }
+        });
+
+        function listenToSchedules() {
+            if (!db) return;
+            const q = query(collection(db, "schedules"), orderBy("date", "asc"));
+            onSnapshot(q, (snapshot) => {
+                scheduleContainer.innerHTML = '';
+                if (snapshot.empty) {
+                    scheduleContainer.innerHTML = '<div style="font-size: 12px; color: #8c7355;">予定はありません</div>';
+                    return;
+                }
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const el = document.createElement('div');
+                    el.className = 'schedule-item';
+                    el.innerHTML = `
+                        <div>
+                            <div class="schedule-date">${data.date}</div>
+                            <div class="schedule-text">${data.title}</div>
+                        </div>
+                        <div class="schedule-owner">${data.owner}</div>
+                    `;
+                    scheduleContainer.appendChild(el);
+                });
+            }, (error) => {
+                console.error("Firestore読み込みエラー:", error);
+                scheduleContainer.innerHTML = '<div style="font-size: 12px; color: #8c7355;">予定の読み込みに失敗しました</div>';
+            });
+        }
+    </script>
+
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>
+　
