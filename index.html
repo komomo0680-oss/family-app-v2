@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>小西家 - わんこファミリーアプリ</title>
+    
+    <!-- スマホホーム画面用アイコン (PWA / Web App) -->
+    <link rel="apple-touch-icon" href="1792306567992.jpg">
+    <link rel="icon" href="1792306567992.jpg">
+    
     <!-- スマホ・PWA用フルスクリーン設定 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -19,6 +24,7 @@
             flex-direction: column;
             min-height: 100vh;
             padding: 12px;
+            padding-bottom: 40px; /* スマホの下部バーと重ならないように余白を追加 */
         }
         .container {
             background: #ffffff;
@@ -58,7 +64,7 @@
             transition: opacity 0.2s;
         }
         .btn:hover { opacity: 0.9; }
-        .btn-logout { background-color: #9ca3af; margin-top: auto; }
+        .btn-logout { background-color: #9ca3af; margin-top: 20px; margin-bottom: 20px; }
 
         .hidden { display: none !important; }
         
@@ -213,7 +219,7 @@
                 <div class="widget-card">
                     <div class="widget-title">📅 家族・連携アプリの共通予定</div>
                     <div id="schedule-container" class="schedule-list">
-                        <div style="font-size: 12px; color: #8c7355;">ログイン後に自動読み込みされます</div>
+                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
                     </div>
                 </div>
             </div>
@@ -250,7 +256,7 @@
                 </div>
             </div>
 
-            <button class="btn btn-logout" id="logout-btn" style="margin-top: 15px;">ログアウト</button>
+            <button class="btn btn-logout" id="logout-btn">ログアウト</button>
         </div>
     </div>
 
@@ -283,7 +289,6 @@
         const addScheduleBtn = document.getElementById("add-schedule-btn");
         const scheduleContainer = document.getElementById("schedule-container");
 
-        // ログインボタンのクリックイベント
         loginBtn.addEventListener("click", () => {
             signInWithPopup(auth, provider).catch((error) => {
                 alert("ログインエラー: " + error.message);
@@ -292,7 +297,6 @@
 
         logoutBtn.addEventListener("click", () => signOut(auth));
 
-        // 認証状態の監視
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 loginSection.classList.add("hidden");
@@ -304,7 +308,6 @@
                     document.getElementById("event-owner").value = user.displayName || "小西家";
                 }
 
-                // Firestoreの初期化とデータ読み込み
                 try {
                     db = getFirestore(app);
                     listenToSchedules();
@@ -317,7 +320,6 @@
             }
         });
 
-        // 予定の追加
         addScheduleBtn.addEventListener("click", async () => {
             const date = document.getElementById('event-date').value;
             const title = document.getElementById('event-title').value;
@@ -386,4 +388,3 @@
     </script>
 </body>
 </html>
-　
