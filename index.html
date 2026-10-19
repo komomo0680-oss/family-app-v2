@@ -62,6 +62,9 @@
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(217, 119, 6, 0.2);
             transition: opacity 0.2s;
+            text-align: center;
+            text-decoration: none;
+            display: block;
         }
         .btn:hover { opacity: 0.9; }
         .btn-logout { background-color: #9ca3af; margin-top: 20px; margin-bottom: 20px; }
@@ -242,4 +245,233 @@
                         <input type="date" id="event-date" class="input-field">
                         <input type="text" id="event-title" class="input-field" placeholder="予定の内容 (例: 買い物、病院)">
                         <input type="text" id="event-owner" class="input-field" placeholder="誰の予定か (例: 小西家)">
-                        <button
+                        <button class="btn" id="add-schedule-btn">予定を追加する</button>
+                    </div>
+                </div>
+
+                <div class="widget-card">
+                    <div class="widget-title">📅 家族・連携アプリの共通予定</div>
+                    <div id="schedule-container" class="list-container">
+                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. TODOタブ -->
+            <div id="todo" class="tab-content">
+                <div class="widget-card">
+                    <div class="widget-title">📝 TODOタスクの追加</div>
+                    <div class="input-group">
+                        <input type="text" id="todo-title" class="input-field" placeholder="やることを入力">
+                        <button class="btn" id="add-todo-btn">TODOを追加する</button>
+                    </div>
+                </div>
+                <div class="widget-card">
+                    <div class="widget-title">✅ タスク一覧</div>
+                    <div id="todo-container" class="list-container">
+                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 目標タブ -->
+            <div id="goals" class="tab-content">
+                <div class="widget-card">
+                    <div class="widget-title">🎯 新しい目標を設定</div>
+                    <div class="input-group">
+                        <select id="goal-category" class="input-field">
+                            <option value="短期目標">短期目標（今月・今週）</option>
+                            <option value="長期目標">長期目標（今年・将来）</option>
+                        </select>
+                        <input type="text" id="goal-title" class="input-field" placeholder="目標の内容 (例: 〇〇資格の勉強、健康改善)">
+                        <button class="btn" id="add-goal-btn">目標を登録する</button>
+                    </div>
+                </div>
+                <div class="widget-card">
+                    <div class="widget-title">🏆 みんなの目標リスト</div>
+                    <div id="goals-container" class="list-container">
+                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. 連絡事項タブ -->
+            <div id="contact" class="tab-content">
+                <div class="widget-card">
+                    <div class="widget-title">💬 メッセージを送る</div>
+                    <div class="input-group">
+                        <textarea id="contact-msg" class="input-field" placeholder="連絡事項やメッセージを入力..."></textarea>
+                        <button class="btn" id="add-contact-btn">送信する</button>
+                    </div>
+                </div>
+                <div class="widget-card">
+                    <div class="widget-title">📋 掲示板</div>
+                    <div id="contact-container" class="list-container">
+                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. 思考整理タブ -->
+            <div id="memo" class="tab-content">
+                <div class="widget-card">
+                    <div class="widget-title">🌳 アイデア・思考メモを整理</div>
+                    <div class="input-group">
+                        <input type="text" id="memo-theme" class="input-field" placeholder="テーマ・見出し (例: デザイン案、旅行計画)">
+                        <textarea id="memo-content" class="input-field" placeholder="思考の詳細、メモ、階層箇条書きなど"></textarea>
+                        <button class="btn" id="add-memo-btn">メモを記録する</button>
+                    </div>
+                </div>
+                <div class="widget-card">
+                    <div class="widget-title">💡 思考整理ツリー・ノート</div>
+                    <div id="memo-container" class="list-container">
+                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-logout" id="logout-btn">ログアウト</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (Auth & Firestore) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDuR7NVKyrWu6MMegnhJI3qTr4ceiPngfE",
+            authDomain: "konishi-family.firebaseapp.com",
+            projectId: "konishi-family",
+            storageBucket: "konishi-family.appspot.com",
+            messagingSenderId: "391240149978",
+            appId: "1:391240149978:web:c65a95e99c043d9d0d6ee3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        let db = null;
+        let currentUser = null;
+        const provider = new GoogleAuthProvider();
+
+        const loginSection = document.getElementById("login-section");
+        const userSection = document.getElementById("user-section");
+        const loginBtn = document.getElementById("login-btn");
+        const logoutBtn = document.getElementById("logout-btn");
+
+        // スマホで確実にするため、Googleの認証URLを直接生成してページ遷移させる
+        loginBtn.addEventListener("click", () => {
+            signInWithPopup(auth, provider).then((result) => {
+                // ポップアップが成功した場合
+            }).catch((error) => {
+                // ポップアップがブロックされた場合は、リダイレクトに切り替えてもう一度試す
+                import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js").then(({ signInWithRedirect }) => {
+                    signInWithRedirect(auth, provider);
+                });
+            });
+        });
+
+        logoutBtn.addEventListener("click", () => signOut(auth));
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                loginSection.classList.add("hidden");
+                userSection.classList.remove("hidden");
+                
+                const userNameEl = document.getElementById("user-name");
+                const userPhotoEl = document.getElementById("user-photo");
+                if (userNameEl) userNameEl.textContent = user.displayName || "ユーザー";
+                if (userPhotoEl && user.photoURL) userPhotoEl.src = user.photoURL;
+
+                const eventOwnerEl = document.getElementById("event-owner");
+                if (eventOwnerEl && !eventOwnerEl.value) {
+                    eventOwnerEl.value = user.displayName || "小西家";
+                }
+
+                try {
+                    db = getFirestore(app);
+                    initRealtimeListeners();
+                    setupActionButtons();
+                } catch (e) {
+                    console.error("Firestore初期化エラー:", e);
+                }
+            } else {
+                currentUser = null;
+                loginSection.classList.remove("hidden");
+                userSection.classList.add("hidden");
+            }
+        });
+
+        function setupActionButtons() {
+            const addScheduleBtn = document.getElementById("add-schedule-btn");
+            if (addScheduleBtn && !addScheduleBtn.dataset.bound) {
+                addScheduleBtn.dataset.bound = "true";
+                addScheduleBtn.addEventListener("click", async () => {
+                    const date = document.getElementById('event-date').value;
+                    const title = document.getElementById('event-title').value;
+                    const owner = document.getElementById('event-owner').value;
+                    if (!date || !title) return alert('日付と内容を入力してください');
+                    try {
+                        await addDoc(collection(db, "schedules"), { date, title, owner: owner || "小西家", createdAt: new Date() });
+                        document.getElementById('event-date').value = '';
+                        document.getElementById('event-title').value = '';
+                    } catch (e) { alert("保存失敗: " + e.message); }
+                });
+            }
+
+            const addTodoBtn = document.getElementById("add-todo-btn");
+            if (addTodoBtn && !addTodoBtn.dataset.bound) {
+                addTodoBtn.dataset.bound = "true";
+                addTodoBtn.addEventListener("click", async () => {
+                    const title = document.getElementById('todo-title').value;
+                    if (!title) return alert('タスクを入力してください');
+                    try {
+                        await addDoc(collection(db, "todos"), { title, user: currentUser.displayName || "匿名", createdAt: new Date() });
+                        document.getElementById('todo-title').value = '';
+                    } catch (e) { alert("保存失敗: " + e.message); }
+                });
+            }
+
+            const addGoalBtn = document.getElementById("add-goal-btn");
+            if (addGoalBtn && !addGoalBtn.dataset.bound) {
+                addGoalBtn.dataset.bound = "true";
+                addGoalBtn.addEventListener("click", async () => {
+                    const category = document.getElementById('goal-category').value;
+                    const title = document.getElementById('goal-title').value;
+                    if (!title) return alert('目標を入力してください');
+                    try {
+                        await addDoc(collection(db, "goals"), { category, title, user: currentUser.displayName || "匿名", createdAt: new Date() });
+                        document.getElementById('goal-title').value = '';
+                    } catch (e) { alert("保存失敗: " + e.message); }
+                });
+            }
+
+            const addContactBtn = document.getElementById("add-contact-btn");
+            if (addContactBtn && !addContactBtn.dataset.bound) {
+                addContactBtn.dataset.bound = "true";
+                addContactBtn.addEventListener("click", async () => {
+                    const msg = document.getElementById('contact-msg').value;
+                    if (!msg) return alert('メッセージを入力してください');
+                    try {
+                        await addDoc(collection(db, "contacts"), { msg, user: currentUser.displayName || "匿名", createdAt: new Date() });
+                        document.getElementById('contact-msg').value = '';
+                    } catch (e) { alert("送信失敗: " + e.message); }
+                });
+            }
+
+            const addMemoBtn = document.getElementById("add-memo-btn");
+            if (addMemoBtn && !addMemoBtn.dataset.bound) {
+                addMemoBtn.dataset.bound = "true";
+                addMemoBtn.addEventListener("click", async () => {
+                    const theme = document.getElementById('memo-theme').value;
+                    const content = document.getElementById('memo-content').value;
+                    if (!theme || !content) return alert('テーマとメモ内容を入力してください');
+                    try {
+                        await addDoc(collection(db, "memos"), { theme, content, user: currentUser.displayName || "匿名", createdAt: new Date() });
+                        document.getElementById('memo-theme').value = '';
+                        document.getElementById('memo-content').value = '';
+                    } catch (e) { alert("保存失敗: " + e.message); }
+                });
+  
