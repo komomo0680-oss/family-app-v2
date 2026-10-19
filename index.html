@@ -214,8 +214,7 @@
             <img src="1792306567992.jpg" class="dog-icon-large" alt="小西家わんこ" onerror="this.style.display='none'">
             <h1>🐾 小西家 🐾</h1>
             <p class="subtitle">わんことうるおう、家族の共有アプリ</p>
-            <!-- スマホでも確実に動くよう、Firebaseのホスティング認証URLへ直接ジャンプさせます -->
-            <a href="https://konishi-family.firebaseapp.com/__/auth/handler" class="btn" id="login-btn">🐶 Googleでログイン</a>
+            <button class="btn" id="login-btn">🐶 Googleでログイン</button>
         </div>
 
         <!-- ログイン後画面（メインアプリ） -->
@@ -225,7 +224,7 @@
                     <img id="user-photo" class="user-photo" alt="アイコン">
                     <div class="user-name"><span id="user-name"></span> さん</div>
                 </div>
-                <img src="1792306567992.jpg" style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid #d97706;" alt="小西家わんこ" onerror="this.style.display='none'" data-alt="小西家わんこ">
+                <img src="1792306567992.jpg" style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid #d97706;" alt="小西家わんこ" onerror="this.style.display='none'">
             </div>
 
             <!-- タブ切り替えボタン -->
@@ -357,16 +356,13 @@
 
         const loginSection = document.getElementById("login-section");
         const userSection = document.getElementById("user-section");
+        const loginBtn = document.getElementById("login-btn");
         const logoutBtn = document.getElementById("logout-btn");
 
-        // 自動ログイン・ポップアップのトラブルを防ぐため、通常のGoogleログインをボタンに紐付け
-        const loginBtn = document.getElementById("login-btn");
         if (loginBtn) {
-            loginBtn.addEventListener("click", (e) => {
-                e.preventDefault();
-                signInWithPopup(auth, provider).catch(() => {
-                    // もしポップアップが駄目な場合は直接Firebase Authハンドラーへ飛ばす
-                    window.location.href = "https://konishi-family.firebaseapp.com/__/auth/handler";
+            loginBtn.addEventListener("click", () => {
+                signInWithPopup(auth, provider).catch((error) => {
+                    alert("ログインエラー: " + error.message);
                 });
             });
         }
@@ -472,4 +468,14 @@
                     try {
                         await addDoc(collection(db, "memos"), { theme, content, user: currentUser.displayName || "匿名", createdAt: new Date() });
                         document.getElementById('memo-theme').value = '';
-          
+                        document.getElementById('memo-content').value = '';
+                    } catch (e) { alert("保存失敗: " + e.message); }
+                });
+            }
+        }
+
+        function initRealtimeListeners() {
+            listenToSchedules();
+            listenToTodos();
+            listenToGoals();
+            listenToCon
