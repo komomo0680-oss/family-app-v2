@@ -293,13 +293,14 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // 4人の家族が使っている本番アプリのデータベース設定に統一
         const firebaseConfig = {
-            apiKey: "AIzaSyDuR7NVKyrWu6MMegnhJI3qTr4ceiPngfE",
-            authDomain: "konishi-family.firebaseapp.com",
-            projectId: "konishi-family",
-            storageBucket: "konishi-family.appspot.com",
-            messagingSenderId: "391240149978",
-            appId: "1:391240149978:web:c65a95e99c043d9d0d6ee3"
+            apiKey: "AIzaSyDXpUCPANQpTppk1dhOY3B4sENz-7bw08k",
+            authDomain: "family-app-438a1.firebaseapp.com",
+            projectId: "family-app-438a1",
+            storageBucket: "family-app-438a1.firebasestorage.app",
+            messagingSenderId: "793853520735",
+            appId: "1:793853520735:web:bf16ccfeecee2fcd76a4ea"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -350,8 +351,9 @@
 
             if (!date || !title) return alert('日付と内容を入力してください');
             try {
-                await addDoc(collection(db, "schedules"), {
-                    date, title, owner: owner || "小西家", createdAt: new Date()
+                // もう一つのアプリと共有しているパス（families/main/events）に合わせる
+                await addDoc(collection(db, "families", "main", "events"), {
+                    date, title, who: owner || "小西家", ts: Date.now()
                 });
                 document.getElementById('event-date').value = '';
                 document.getElementById('event-title').value = '';
@@ -363,8 +365,9 @@
             const title = document.getElementById('todo-title').value;
             if (!title) return alert('タスクを入力してください');
             try {
-                await addDoc(collection(db, "todos"), {
-                    title, user: auth.currentUser ? (auth.currentUser.displayName || "匿名") : "匿名", createdAt: new Date()
+                // もう一つのアプリと共有しているパス（families/main/todos）に合わせる
+                await addDoc(collection(db, "families", "main", "todos"), {
+                    t: title, d: false, who: auth.currentUser ? (auth.currentUser.displayName || "家族") : "家族", ts: Date.now()
                 });
                 document.getElementById('todo-title').value = '';
             } catch (e) { alert("保存失敗: " + e.message); }
@@ -377,8 +380,9 @@
 
             if (!theme || !content) return alert('テーマとメモ内容を入力してください');
             try {
-                await addDoc(collection(db, "memos"), {
-                    theme, content, user: auth.currentUser ? (auth.currentUser.displayName || "匿名") : "匿名", createdAt: new Date()
+                // もう一つのアプリと共有しているパス（families/main/memos）に合わせる
+                await addDoc(collection(db, "families", "main", "memos"), {
+                    t: "【" + theme + "】\n" + content, who: auth.currentUser ? (auth.currentUser.displayName || "家族") : "家族", ts: Date.now()
                 });
                 document.getElementById('memo-theme').value = '';
                 document.getElementById('memo-content').value = '';
@@ -386,7 +390,7 @@
         });
 
         function listenToSchedules() {
-            const q = query(collection(db, "schedules"), orderBy("date", "asc"));
+            const q = query(collection(db, "families", "main", "events"), orderBy("date", "asc"));
             onSnapshot(q, (snapshot) => {
                 const container = document.getElementById("schedule-container");
                 container.innerHTML = snapshot.empty ? '<div style="font-size: 12px; color: #8c7355;">予定はありません</div>' : '';
@@ -396,16 +400,16 @@
                         <div class="item-card">
                             <div class="item-header">
                                 <span class="item-title">${data.title}</span>
-                                <span class="item-tag">${data.owner}</span>
+                                <span class="item-tag">${data.who || "小西家"}</span>
                             </div>
-                            <div class="item-meta">📅 ${data.date}</div>
+                            <div class="item-meta">📅 ${data.date} ${data.time ? data.time : ''}</div>
                         </div>`;
                 });
             });
         }
 
         function listenToTodos() {
-            const q = query(collection(db, "todos"), orderBy("createdAt", "desc"));
+            const q = query(collection(db, "families", "main", "todos"), orderBy("ts", "desc"));
             onSnapshot(q, (snapshot) => {
                 const container = document.getElementById("todo-container");
                 container.innerHTML = snapshot.empty ? '<div style="font-size: 12px; color: #8c7355;">TODOはありません</div>' : '';
@@ -413,15 +417,15 @@
                     const data = doc.data();
                     container.innerHTML += `
                         <div class="item-card">
-                            <div class="item-title">☑️ ${data.title}</div>
-                            <div class="item-meta">担当: ${data.user}</div>
+                            <div class="item-title">☑️ ${data.t}</div>
+                            <div class="item-meta">担当: ${data.who || "家族"}</div>
                         </div>`;
                 });
             });
         }
 
         function listenToMemos() {
-            const q = query(collection(db, "memos"), orderBy("createdAt", "desc"));
+            const q = query(collection(db, "families", "main", "memos"), orderBy("ts", "desc"));
             onSnapshot(q, (snapshot) => {
                 const container = document.getElementById("memo-container");
                 container.innerHTML = snapshot.empty ? '<div style="font-size: 12px; color: #8c7355;">メモはまだありません</div>' : '';
@@ -429,9 +433,8 @@
                     const data = doc.data();
                     container.innerHTML += `
                         <div class="tree-node">
-                            <div class="tree-title">💡 ${data.theme}</div>
-                            <div class="tree-body">${data.content}</div>
-                            <div class="item-meta" style="margin-top:6px; text-align:right;">記録: ${data.user}</div>
+                            <div class="tree-body" style="white-space: pre-wrap;">${data.t}</div>
+                            <div class="item-meta" style="margin-top:6px; text-align:right;">記録: ${data.who || "家族"}</div>
                         </div>`;
                 });
             });
