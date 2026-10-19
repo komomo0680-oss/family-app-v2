@@ -24,7 +24,7 @@
             flex-direction: column;
             min-height: 100vh;
             padding: 12px;
-            padding-bottom: 40px; /* スマホの下部バーと重ならないように余白を追加 */
+            padding-bottom: 40px;
         }
         .container {
             background: #ffffff;
@@ -146,31 +146,62 @@
             font-size: 13px;
             width: 100%;
         }
+        textarea.input-field {
+            resize: vertical;
+            min-height: 70px;
+            font-family: inherit;
+        }
         
-        .schedule-list {
+        .list-container {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
-        .schedule-item {
+        .item-card {
             background: #ffffff;
             border: 1px solid #f3e5d8;
             border-left: 4px solid #d97706;
             padding: 10px 12px;
             border-radius: 8px;
             display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .item-header {
+            display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .schedule-date { font-size: 11px; color: #8c7355; font-weight: bold; }
-        .schedule-text { font-size: 13px; color: #4a3b32; font-weight: bold; }
-        .schedule-owner {
-            font-size: 11px;
+        .item-title { font-size: 13px; color: #4a3b32; font-weight: bold; }
+        .item-meta { font-size: 11px; color: #8c7355; }
+        .item-tag {
+            font-size: 10px;
             background: #fef3c7;
             color: #78350f;
-            padding: 2px 8px;
-            border-radius: 10px;
+            padding: 2px 6px;
+            border-radius: 6px;
             font-weight: bold;
+        }
+        
+        /* 思考整理ツリー表示用 */
+        .tree-node {
+            background: #ffffff;
+            border: 1px dashed #d97706;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+        .tree-title {
+            font-weight: bold;
+            font-size: 13px;
+            color: #8b5a2b;
+            margin-bottom: 4px;
+        }
+        .tree-body {
+            font-size: 12px;
+            color: #555;
+            white-space: pre-wrap;
+            line-height: 1.4;
         }
     </style>
 </head>
@@ -211,14 +242,14 @@
                     <div class="input-group">
                         <input type="date" id="event-date" class="input-field">
                         <input type="text" id="event-title" class="input-field" placeholder="予定の内容 (例: 買い物、病院)">
-                        <input type="text" id="event-owner" class="input-field" placeholder="誰の予定か (例: 小西家、仕事アプリ)">
+                        <input type="text" id="event-owner" class="input-field" placeholder="誰の予定か (例: 小西家)">
                         <button class="btn" id="add-schedule-btn">予定を追加する</button>
                     </div>
                 </div>
 
                 <div class="widget-card">
                     <div class="widget-title">📅 家族・連携アプリの共通予定</div>
-                    <div id="schedule-container" class="schedule-list">
+                    <div id="schedule-container" class="list-container">
                         <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
                     </div>
                 </div>
@@ -227,32 +258,73 @@
             <!-- 2. TODOタブ -->
             <div id="todo" class="tab-content">
                 <div class="widget-card">
-                    <div class="widget-title">📝 TODOリスト</div>
-                    <div class="widget-body">タスク管理ウィジェット</div>
+                    <div class="widget-title">📝 TODOタスクの追加</div>
+                    <div class="input-group">
+                        <input type="text" id="todo-title" class="input-field" placeholder="やることを入力">
+                        <button class="btn" id="add-todo-btn">TODOを追加する</button>
+                    </div>
+                </div>
+                <div class="widget-card">
+                    <div class="widget-title">✅ タスク一覧</div>
+                    <div id="todo-container" class="list-container">
+                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
+                    </div>
                 </div>
             </div>
 
             <!-- 3. 目標タブ -->
             <div id="goals" class="tab-content">
                 <div class="widget-card">
-                    <div class="widget-title">🎯 長期・短期目標（自分のみ）</div>
-                    <div class="widget-body">目標管理ウィジェット</div>
+                    <div class="widget-title">🎯 新しい目標を設定</div>
+                    <div class="input-group">
+                        <select id="goal-category" class="input-field">
+                            <option value="短期目標">短期目標（今月・今週）</option>
+                            <option value="長期目標">長期目標（今年・将来）</option>
+                        </select>
+                        <input type="text" id="goal-title" class="input-field" placeholder="目標の内容 (例: 〇〇資格の勉強、健康改善)">
+                        <button class="btn" id="add-goal-btn">目標を登録する</button>
+                    </div>
+                </div>
+                <div class="widget-card">
+                    <div class="widget-title">🏆 みんなの目標リスト</div>
+                    <div id="goals-container" class="list-container">
+                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
+                    </div>
                 </div>
             </div>
 
             <!-- 4. 連絡事項タブ -->
             <div id="contact" class="tab-content">
                 <div class="widget-card">
-                    <div class="widget-title">💬 家族の連絡掲示板</div>
-                    <div class="widget-body">メッセージボード</div>
+                    <div class="widget-title">💬 メッセージを送る</div>
+                    <div class="input-group">
+                        <textarea id="contact-msg" class="input-field" placeholder="連絡事項やメッセージを入力..."></textarea>
+                        <button class="btn" id="add-contact-btn">送信する</button>
+                    </div>
+                </div>
+                <div class="widget-card">
+                    <div class="widget-title">📋 掲示板</div>
+                    <div id="contact-container" class="list-container">
+                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
+                    </div>
                 </div>
             </div>
 
             <!-- 5. 思考整理タブ -->
             <div id="memo" class="tab-content">
                 <div class="widget-card">
-                    <div class="widget-title">🌳 思考の階層整理ツリー</div>
-                    <div class="widget-body">思考整理メモウィジェット</div>
+                    <div class="widget-title">🌳 アイデア・思考メモを整理</div>
+                    <div class="input-group">
+                        <input type="text" id="memo-theme" class="input-field" placeholder="テーマ・見出し (例: デザイン案、旅行計画)">
+                        <textarea id="memo-content" class="input-field" placeholder="思考の詳細、メモ、階層箇条書きなど"></textarea>
+                        <button class="btn" id="add-memo-btn">メモを記録する</button>
+                    </div>
+                </div>
+                <div class="widget-card">
+                    <div class="widget-title">💡 思考整理ツリー・ノート</div>
+                    <div id="memo-container" class="list-container">
+                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
+                    </div>
                 </div>
             </div>
 
@@ -278,6 +350,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         let db = null;
+        let currentUser = null;
         const provider = new GoogleAuthProvider();
 
         const loginSection = document.getElementById("login-section");
@@ -286,8 +359,6 @@
         const logoutBtn = document.getElementById("logout-btn");
         const userName = document.getElementById("user-name");
         const userPhoto = document.getElementById("user-photo");
-        const addScheduleBtn = document.getElementById("add-schedule-btn");
-        const scheduleContainer = document.getElementById("schedule-container");
 
         loginBtn.addEventListener("click", () => {
             signInWithPopup(auth, provider).catch((error) => {
@@ -299,6 +370,7 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
+                currentUser = user;
                 loginSection.classList.add("hidden");
                 userSection.classList.remove("hidden");
                 userName.textContent = user.displayName || "ユーザー";
@@ -310,81 +382,113 @@
 
                 try {
                     db = getFirestore(app);
-                    listenToSchedules();
+                    initRealtimeListeners();
                 } catch (e) {
                     console.error("Firestore初期化エラー:", e);
                 }
             } else {
+                currentUser = null;
                 loginSection.classList.remove("hidden");
                 userSection.classList.add("hidden");
             }
         });
 
-        addScheduleBtn.addEventListener("click", async () => {
+        function initRealtimeListeners() {
+            listenToSchedules();
+            listenToTodos();
+            listenToGoals();
+            listenToContacts();
+            listenToMemos();
+        }
+
+        // 1. 予定機能
+        document.getElementById("add-schedule-btn").addEventListener("click", async () => {
             const date = document.getElementById('event-date').value;
             const title = document.getElementById('event-title').value;
             const owner = document.getElementById('event-owner').value;
 
-            if (!date || !title) {
-                alert('日付と予定内容を入力してください');
-                return;
-            }
-
-            if (!db) {
-                alert("データベースが準備できていません");
-                return;
-            }
-
+            if (!date || !title) return alert('日付と内容を入力してください');
             try {
                 await addDoc(collection(db, "schedules"), {
-                    date: date,
-                    title: title,
-                    owner: owner || "小西家",
-                    createdAt: new Date()
+                    date, title, owner: owner || "小西家", createdAt: new Date()
                 });
                 document.getElementById('event-date').value = '';
                 document.getElementById('event-title').value = '';
-            } catch (e) {
-                alert("予定の保存に失敗しました: " + e.message);
-            }
+            } catch (e) { alert("保存失敗: " + e.message); }
         });
 
         function listenToSchedules() {
-            if (!db) return;
             const q = query(collection(db, "schedules"), orderBy("date", "asc"));
             onSnapshot(q, (snapshot) => {
-                scheduleContainer.innerHTML = '';
-                if (snapshot.empty) {
-                    scheduleContainer.innerHTML = '<div style="font-size: 12px; color: #8c7355;">予定はありません</div>';
-                    return;
-                }
-                snapshot.forEach((doc) => {
+                const container = document.getElementById("schedule-container");
+                container.innerHTML = snapshot.empty ? '<div style="font-size: 12px; color: #8c7355;">予定はありません</div>' : '';
+                snapshot.forEach(doc => {
                     const data = doc.data();
-                    const el = document.createElement('div');
-                    el.className = 'schedule-item';
-                    el.innerHTML = `
-                        <div>
-                            <div class="schedule-date">${data.date}</div>
-                            <div class="schedule-text">${data.title}</div>
-                        </div>
-                        <div class="schedule-owner">${data.owner}</div>
-                    `;
-                    scheduleContainer.appendChild(el);
+                    container.innerHTML += `
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-title">${data.title}</span>
+                                <span class="item-tag">${data.owner}</span>
+                            </div>
+                            <div class="item-meta">📅 ${data.date}</div>
+                        </div>`;
                 });
-            }, (error) => {
-                console.error("Firestore読み込みエラー:", error);
-                scheduleContainer.innerHTML = '<div style="font-size: 12px; color: #8c7355;">予定の読み込みに失敗しました</div>';
             });
         }
-    </script>
 
-    <script>
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
+        // 2. TODO機能
+        document.getElementById("add-todo-btn").addEventListener("click", async () => {
+            const title = document.getElementById('todo-title').value;
+            if (!title) return alert('タスクを入力してください');
+            try {
+                await addDoc(collection(db, "todos"), {
+                    title, user: currentUser.displayName || "匿名", createdAt: new Date()
+                });
+                document.getElementById('todo-title').value = '';
+            } catch (e) { alert("保存失敗: " + e.message); }
+        });
+
+        function listenToTodos() {
+            const q = query(collection(db, "todos"), orderBy("createdAt", "desc"));
+            onSnapshot(q, (snapshot) => {
+                const container = document.getElementById("todo-container");
+                container.innerHTML = snapshot.empty ? '<div style="font-size: 12px; color: #8c7355;">TODOはありません</div>' : '';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    container.innerHTML += `
+                        <div class="item-card">
+                            <div class="item-title">☑️ ${data.title}</div>
+                            <div class="item-meta">担当: ${data.user}</div>
+                        </div>`;
+                });
+            });
         }
-    </script>
-</body>
-</html>
+
+        // 3. 目標機能
+        document.getElementById("add-goal-btn").addEventListener("click", async () => {
+            const category = document.getElementById('goal-category').value;
+            const title = document.getElementById('goal-title').value;
+            if (!title) return alert('目標を入力してください');
+            try {
+                await addDoc(collection(db, "goals"), {
+                    category, title, user: currentUser.displayName || "匿名", createdAt: new Date()
+                });
+                document.getElementById('goal-title').value = '';
+            } catch (e) { alert("保存失敗: " + e.message); }
+        });
+
+        function listenToGoals() {
+            const q = query(collection(db, "goals"), orderBy("createdAt", "desc"));
+            onSnapshot(q, (snapshot) => {
+                const container = document.getElementById("goals-container");
+                container.innerHTML = snapshot.empty ? '<div style="font-size: 12px; color: #8c7355;">目標は未登録です</div>' : '';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    container.innerHTML += `
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-title">🎯 ${data.title}</span>
+                                <span class="item-tag">${data.category}</span>
+                            </div>
+                            <div class="item-meta">設定者: ${data.user}</div>
+             
