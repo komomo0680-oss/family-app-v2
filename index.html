@@ -61,12 +61,10 @@
             width: 100%;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(217, 119, 6, 0.2);
-            text-align: center;
-            text-decoration: none;
-            display: block;
+            transition: opacity 0.2s;
         }
         .btn:hover { opacity: 0.9; }
-        .btn-logout { background-color: #9ca3af; margin-top: 20px; margin-bottom: 20px; width: auto; }
+        .btn-logout { background-color: #9ca3af; margin-top: 20px; }
 
         .hidden { display: none !important; }
         
@@ -83,46 +81,12 @@
         .user-photo { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #d97706; }
         .user-name { font-weight: bold; font-size: 14px; color: #78350f; }
 
-        .tab-nav {
-            display: flex;
-            gap: 4px;
-            background: #f3e5d8;
-            padding: 4px;
-            border-radius: 12px;
-            margin-bottom: 14px;
-            overflow-x: auto;
-        }
-        .tab-btn {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 8px 2px;
-            font-size: 11px;
-            font-weight: bold;
-            color: #8c7355;
-            border-radius: 8px;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-        .tab-btn.active {
-            background: #ffffff;
-            color: #d97706;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        .tab-content {
-            display: none;
-            flex: 1;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .tab-content.active { display: flex; }
-
         .widget-card {
             background: #fafaf9;
             border: 1px solid #e7e5e4;
             border-radius: 12px;
             padding: 14px;
+            margin-bottom: 12px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.02);
         }
         .widget-title {
@@ -130,16 +94,11 @@
             font-weight: bold;
             color: #78350f;
             margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
-
         .input-group {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            margin-bottom: 12px;
         }
         .input-field {
             padding: 10px;
@@ -148,12 +107,6 @@
             font-size: 13px;
             width: 100%;
         }
-        textarea.input-field {
-            resize: vertical;
-            min-height: 70px;
-            font-family: inherit;
-        }
-        
         .list-container {
             display: flex;
             flex-direction: column;
@@ -184,26 +137,6 @@
             border-radius: 6px;
             font-weight: bold;
         }
-        
-        .tree-node {
-            background: #ffffff;
-            border: 1px dashed #d97706;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 8px;
-        }
-        .tree-title {
-            font-weight: bold;
-            font-size: 13px;
-            color: #8b5a2b;
-            margin-bottom: 4px;
-        }
-        .tree-body {
-            font-size: 12px;
-            color: #555;
-            white-space: pre-wrap;
-            line-height: 1.4;
-        }
     </style>
 </head>
 <body>
@@ -217,7 +150,7 @@
             <button class="btn" id="login-btn">🐶 Googleでログイン</button>
         </div>
 
-        <!-- ログイン後画面（メインアプリ） -->
+        <!-- ログイン後画面 -->
         <div id="user-section" class="hidden" style="display: flex; flex-direction: column; flex: 1;">
             <div class="user-header">
                 <div class="user-profile">
@@ -227,105 +160,20 @@
                 <img src="1792306567992.jpg" style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid #d97706;" alt="小西家わんこ" onerror="this.style.display='none'">
             </div>
 
-            <!-- タブ切り替えボタン -->
-            <div class="tab-nav">
-                <button class="tab-btn active" onclick="switchTab('schedule')">予定</button>
-                <button class="tab-btn" onclick="switchTab('todo')">TODO</button>
-                <button class="tab-btn" onclick="switchTab('goals')">目標</button>
-                <button class="tab-btn" onclick="switchTab('contact')">連絡事項</button>
-                <button class="tab-btn" onclick="switchTab('memo')">思考整理</button>
-            </div>
-
-            <!-- 1. 予定タブ -->
-            <div id="schedule" class="tab-content active">
-                <div class="widget-card">
-                    <div class="widget-title">➕ 予定を追加（自動共有）</div>
-                    <div class="input-group">
-                        <input type="date" id="event-date" class="input-field">
-                        <input type="text" id="event-title" class="input-field" placeholder="予定の内容 (例: 買い物、病院)">
-                        <input type="text" id="event-owner" class="input-field" placeholder="誰の予定か (例: 小西家)">
-                        <button class="btn" id="add-schedule-btn">予定を追加する</button>
-                    </div>
-                </div>
-
-                <div class="widget-card">
-                    <div class="widget-title">📅 家族・連携アプリの共通予定</div>
-                    <div id="schedule-container" class="list-container">
-                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
-                    </div>
+            <div class="widget-card">
+                <div class="widget-title">➕ 予定を追加（自動共有）</div>
+                <div class="input-group">
+                    <input type="date" id="event-date" class="input-field">
+                    <input type="text" id="event-title" class="input-field" placeholder="予定の内容 (例: 買い物、病院)">
+                    <input type="text" id="event-owner" class="input-field" placeholder="誰の予定か (例: 小西家)">
+                    <button class="btn" id="add-schedule-btn">予定を追加する</button>
                 </div>
             </div>
 
-            <!-- 2. TODOタブ -->
-            <div id="todo" class="tab-content">
-                <div class="widget-card">
-                    <div class="widget-title">📝 TODOタスクの追加</div>
-                    <div class="input-group">
-                        <input type="text" id="todo-title" class="input-field" placeholder="やることを入力">
-                        <button class="btn" id="add-todo-btn">TODOを追加する</button>
-                    </div>
-                </div>
-                <div class="widget-card">
-                    <div class="widget-title">✅ タスク一覧</div>
-                    <div id="todo-container" class="list-container">
-                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3. 目標タブ -->
-            <div id="goals" class="tab-content">
-                <div class="widget-card">
-                    <div class="widget-title">🎯 新しい目標を設定</div>
-                    <div class="input-group">
-                        <select id="goal-category" class="input-field">
-                            <option value="短期目標">短期目標（今月・今週）</option>
-                            <option value="長期目標">長期目標（今年・将来）</option>
-                        </select>
-                        <input type="text" id="goal-title" class="input-field" placeholder="目標の内容 (例: 〇〇資格の勉強、健康改善)">
-                        <button class="btn" id="add-goal-btn">目標を登録する</button>
-                    </div>
-                </div>
-                <div class="widget-card">
-                    <div class="widget-title">🏆 みんなの目標リスト</div>
-                    <div id="goals-container" class="list-container">
-                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 4. 連絡事項タブ -->
-            <div id="contact" class="tab-content">
-                <div class="widget-card">
-                    <div class="widget-title">💬 メッセージを送る</div>
-                    <div class="input-group">
-                        <textarea id="contact-msg" class="input-field" placeholder="連絡事項やメッセージを入力..."></textarea>
-                        <button class="btn" id="add-contact-btn">送信する</button>
-                    </div>
-                </div>
-                <div class="widget-card">
-                    <div class="widget-title">📋 掲示板</div>
-                    <div id="contact-container" class="list-container">
-                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 5. 思考整理タブ -->
-            <div id="memo" class="tab-content">
-                <div class="widget-card">
-                    <div class="widget-title">🌳 アイデア・思考メモを整理</div>
-                    <div class="input-group">
-                        <input type="text" id="memo-theme" class="input-field" placeholder="テーマ・見出し (例: デザイン案、旅行計画)">
-                        <textarea id="memo-content" class="input-field" placeholder="思考の詳細、メモ、階層箇条書きなど"></textarea>
-                        <button class="btn" id="add-memo-btn">メモを記録する</button>
-                    </div>
-                </div>
-                <div class="widget-card">
-                    <div class="widget-title">💡 思考整理ツリー・ノート</div>
-                    <div id="memo-container" class="list-container">
-                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
-                    </div>
+            <div class="widget-card" style="flex: 1; display: flex; flex-direction: column;">
+                <div class="widget-title">📅 家族・連携アプリの共通予定</div>
+                <div id="schedule-container" class="list-container" style="overflow-y: auto; max-height: 300px;">
+                    <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
                 </div>
             </div>
 
@@ -350,132 +198,76 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        let db = null;
-        let currentUser = null;
+        const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
         const loginSection = document.getElementById("login-section");
         const userSection = document.getElementById("user-section");
         const loginBtn = document.getElementById("login-btn");
         const logoutBtn = document.getElementById("logout-btn");
+        const userName = document.getElementById("user-name");
+        const userPhoto = document.getElementById("user-photo");
 
-        if (loginBtn) {
-            loginBtn.addEventListener("click", () => {
-                signInWithPopup(auth, provider).catch((error) => {
-                    alert("ログインエラー: " + error.message);
-                });
+        loginBtn.addEventListener("click", () => {
+            signInWithPopup(auth, provider).catch((error) => {
+                alert("ログインエラー: " + error.message);
             });
-        }
+        });
 
-        if (logoutBtn) {
-            logoutBtn.addEventListener("click", () => signOut(auth));
-        }
+        logoutBtn.addEventListener("click", () => signOut(auth));
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                currentUser = user;
-                if (loginSection) loginSection.classList.add("hidden");
-                if (userSection) userSection.classList.remove("hidden");
-                
-                const userNameEl = document.getElementById("user-name");
-                const userPhotoEl = document.getElementById("user-photo");
-                if (userNameEl) userNameEl.textContent = user.displayName || "ユーザー";
-                if (userPhotoEl && user.photoURL) userPhotoEl.src = user.photoURL;
+                loginSection.classList.add("hidden");
+                userSection.classList.remove("hidden");
+                userName.textContent = user.displayName || "ユーザー";
+                if (user.photoURL) userPhoto.src = user.photoURL;
 
-                const eventOwnerEl = document.getElementById("event-owner");
-                if (eventOwnerEl && !eventOwnerEl.value) {
-                    eventOwnerEl.value = user.displayName || "小西家";
+                if (!document.getElementById("event-owner").value) {
+                    document.getElementById("event-owner").value = user.displayName || "小西家";
                 }
 
-                try {
-                    db = getFirestore(app);
-                    initRealtimeListeners();
-                    setupActionButtons();
-                } catch (e) {
-                    console.error("Firestore初期化エラー:", e);
-                }
+                listenToSchedules();
             } else {
-                currentUser = null;
-                if (loginSection) loginSection.classList.remove("hidden");
-                if (userSection) userSection.classList.add("hidden");
+                loginSection.classList.remove("hidden");
+                userSection.classList.add("hidden");
             }
         });
 
-        function setupActionButtons() {
-            const addScheduleBtn = document.getElementById("add-schedule-btn");
-            if (addScheduleBtn && !addScheduleBtn.dataset.bound) {
-                addScheduleBtn.dataset.bound = "true";
-                addScheduleBtn.addEventListener("click", async () => {
-                    const date = document.getElementById('event-date').value;
-                    const title = document.getElementById('event-title').value;
-                    const owner = document.getElementById('event-owner').value;
-                    if (!date || !title) return alert('日付と内容を入力してください');
-                    try {
-                        await addDoc(collection(db, "schedules"), { date, title, owner: owner || "小西家", createdAt: new Date() });
-                        document.getElementById('event-date').value = '';
-                        document.getElementById('event-title').value = '';
-                    } catch (e) { alert("保存失敗: " + e.message); }
-                });
-            }
+        // 予定追加
+        document.getElementById("add-schedule-btn").addEventListener("click", async () => {
+            const date = document.getElementById('event-date').value;
+            const title = document.getElementById('event-title').value;
+            const owner = document.getElementById('event-owner').value;
 
-            const addTodoBtn = document.getElementById("add-todo-btn");
-            if (addTodoBtn && !addTodoBtn.dataset.bound) {
-                addTodoBtn.dataset.bound = "true";
-                addTodoBtn.addEventListener("click", async () => {
-                    const title = document.getElementById('todo-title').value;
-                    if (!title) return alert('タスクを入力してください');
-                    try {
-                        await addDoc(collection(db, "todos"), { title, user: currentUser.displayName || "匿名", createdAt: new Date() });
-                        document.getElementById('todo-title').value = '';
-                    } catch (e) { alert("保存失敗: " + e.message); }
+            if (!date || !title) return alert('日付と内容を入力してください');
+            try {
+                await addDoc(collection(db, "schedules"), {
+                    date, title, owner: owner || "小西家", createdAt: new Date()
                 });
-            }
+                document.getElementById('event-date').value = '';
+                document.getElementById('event-title').value = '';
+            } catch (e) { alert("保存失敗: " + e.message); }
+        });
 
-            const addGoalBtn = document.getElementById("add-goal-btn");
-            if (addGoalBtn && !addGoalBtn.dataset.bound) {
-                addGoalBtn.dataset.bound = "true";
-                addGoalBtn.addEventListener("click", async () => {
-                    const category = document.getElementById('goal-category').value;
-                    const title = document.getElementById('goal-title').value;
-                    if (!title) return alert('目標を入力してください');
-                    try {
-                        await addDoc(collection(db, "goals"), { category, title, user: currentUser.displayName || "匿名", createdAt: new Date() });
-                        document.getElementById('goal-title').value = '';
-                    } catch (e) { alert("保存失敗: " + e.message); }
+        function listenToSchedules() {
+            const q = query(collection(db, "schedules"), orderBy("date", "asc"));
+            onSnapshot(q, (snapshot) => {
+                const container = document.getElementById("schedule-container");
+                container.innerHTML = snapshot.empty ? '<div style="font-size: 12px; color: #8c7355;">予定はありません</div>' : '';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    container.innerHTML += `
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-title">${data.title}</span>
+                                <span class="item-tag">${data.owner}</span>
+                            </div>
+                            <div class="item-meta">📅 ${data.date}</div>
+                        </div>`;
                 });
-            }
-
-            const addContactBtn = document.getElementById("add-contact-btn");
-            if (addContactBtn && !addContactBtn.dataset.bound) {
-                addContactBtn.dataset.bound = "true";
-                addContactBtn.addEventListener("click", async () => {
-                    const msg = document.getElementById('contact-msg').value;
-                    if (!msg) return alert('メッセージを入力してください');
-                    try {
-                        await addDoc(collection(db, "contacts"), { msg, user: currentUser.displayName || "匿名", createdAt: new Date() });
-                        document.getElementById('contact-msg').value = '';
-                    } catch (e) { alert("送信失敗: " + e.message); }
-                });
-            }
-
-            const addMemoBtn = document.getElementById("add-memo-btn");
-            if (addMemoBtn && !addMemoBtn.dataset.bound) {
-                addMemoBtn.dataset.bound = "true";
-                addMemoBtn.addEventListener("click", async () => {
-                    const theme = document.getElementById('memo-theme').value;
-                    const content = document.getElementById('memo-content').value;
-                    if (!theme || !content) return alert('テーマとメモ内容を入力してください');
-                    try {
-                        await addDoc(collection(db, "memos"), { theme, content, user: currentUser.displayName || "匿名", createdAt: new Date() });
-                        document.getElementById('memo-theme').value = '';
-                        document.getElementById('memo-content').value = '';
-                    } catch (e) { alert("保存失敗: " + e.message); }
-                });
-            }
+            });
         }
-
-        function initRealtimeListeners() {
-            listenToSchedules();
-            listenToTodos();
-            listenToGoals();
-            listenToCon
+    </script>
+</body>
+</html>
