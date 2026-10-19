@@ -4,16 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>小西家 - わんこファミリーアプリ</title>
-    
-    <!-- スマホホーム画面用アイコン (PWA / Web App) -->
     <link rel="apple-touch-icon" href="1792306567992.jpg">
     <link rel="icon" href="1792306567992.jpg">
-    
-    <!-- スマホ・PWA用フルスクリーン設定 -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="小西家">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -24,15 +16,12 @@
             flex-direction: column;
             min-height: 100vh;
             padding: 12px;
-            padding-bottom: 40px;
         }
         .container {
             background: #ffffff;
             padding: 16px;
             border-radius: 16px;
-            box-shadow: 0 4px 16px rgba(139, 90, 43, 0.06);
             width: 100%;
-            max-width: 100%;
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -44,12 +33,10 @@
             border-radius: 50%;
             object-fit: cover;
             border: 4px solid #d97706;
-            box-shadow: 0 6px 16px rgba(217, 119, 6, 0.2);
             margin-bottom: 12px;
         }
         h1 { font-size: 24px; font-weight: 700; color: #8b5a2b; text-align: center; margin-bottom: 4px; }
         .subtitle { font-size: 13px; color: #8c7355; margin-bottom: 20px; text-align: center; }
-        
         .btn {
             background-color: #d97706;
             color: #ffffff;
@@ -60,14 +47,8 @@
             font-weight: bold;
             width: 100%;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(217, 119, 6, 0.2);
-            transition: opacity 0.2s;
         }
-        .btn:hover { opacity: 0.9; }
-        .btn-logout { background-color: #9ca3af; margin-top: 20px; }
-
         .hidden { display: none !important; }
-        
         .user-header {
             display: flex;
             align-items: center;
@@ -77,87 +58,109 @@
             border-radius: 12px;
             margin-bottom: 14px;
         }
-        .user-profile { display: flex; align-items: center; gap: 10px; }
-        .user-photo { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #d97706; }
-        .user-name { font-weight: bold; font-size: 14px; color: #78350f; }
-
-        .tab-nav {
-            display: flex;
-            gap: 6px;
-            background: #f3e5d8;
-            padding: 4px;
-            border-radius: 12px;
-            margin-bottom: 14px;
-        }
-        .tab-btn {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 10px 4px;
-            font-size: 13px;
-            font-weight: bold;
-            color: #8c7355;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        .tab-btn.active {
-            background: #ffffff;
-            color: #d97706;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        .tab-content {
-            display: none;
-            flex: 1;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .tab-content.active { display: flex; }
-
+        .user-photo { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
         .widget-card {
             background: #fafaf9;
             border: 1px solid #e7e5e4;
             border-radius: 12px;
             padding: 14px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-        }
-        .widget-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #78350f;
-            margin-bottom: 10px;
-        }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            margin-bottom: 12px;
         }
         .input-field {
             padding: 10px;
             border: 1px solid #d6d3d1;
             border-radius: 8px;
-            font-size: 13px;
             width: 100%;
+            margin-bottom: 8px;
         }
-        textarea.input-field {
-            resize: vertical;
-            min-height: 80px;
-            font-family: inherit;
-        }
-        
-        .list-container {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .item-card {
-            background: #ffffff;
-            border: 1px solid #f3e5d8;
-            border-left: 4px solid #d97706;
-            padding: 10px 12px;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="login-section" style="margin: auto; text-align: center; display: flex; flex-direction: column; align-items: center; padding: 20px;">
+            <img src="1792306567992.jpg" class="dog-icon-large" alt="小西家わんこ" onerror="this.style.display='none'">
+            <h1>🐾 小西家 🐾</h1>
+            <p class="subtitle">わんことうるおう、家族の共有アプリ</p>
+            <button class="btn" id="login-btn">🐶 Googleでログイン</button>
+        </div>
+
+        <div id="user-section" class="hidden" style="display: flex; flex-direction: column; flex: 1;">
+            <div class="user-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <img id="user-photo" class="user-photo" alt="アイコン">
+                    <div style="font-weight: bold; font-size: 14px; color: #78350f;"><span id="user-name"></span> さん</div>
+                </div>
+            </div>
+            <div class="widget-card">
+                <div style="font-weight: bold; color: #78350f; margin-bottom: 8px;">➕ 予定を追加</div>
+                <input type="date" id="event-date" class="input-field">
+                <input type="text" id="event-title" class="input-field" placeholder="予定の内容">
+                <button class="btn" id="add-schedule-btn">予定を追加する</button>
+            </div>
+            <div class="widget-card" style="flex: 1;">
+                <div style="font-weight: bold; color: #78350f; margin-bottom: 8px;">📅 予定一覧</div>
+                <div id="schedule-container" style="font-size: 13px; color: #8c7355;">読み込み中...</div>
+            </div>
+            <button class="btn" id="logout-btn" style="background-color: #9ca3af; margin-top: 10px;">ログアウト</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDuR7NVKyrWu6MMegnhJI3qTr4ceiPngfE",
+            authDomain: "konishi-family.firebaseapp.com",
+            projectId: "konishi-family",
+            storageBucket: "konishi-family.appspot.com",
+            messagingSenderId: "391240149978",
+            appId: "1:391240149978:web:c65a95e99c043d9d0d6ee3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        document.getElementById("login-btn").addEventListener("click", () => {
+            signInWithPopup(auth, provider).catch((error) => alert("エラー: " + error.message));
+        });
+        document.getElementById("logout-btn").addEventListener("click", () => signOut(auth));
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById("login-section").classList.add("hidden");
+                document.getElementById("user-section").classList.remove("hidden");
+                document.getElementById("user-name").textContent = user.displayName || "ユーザー";
+                if (user.photoURL) document.getElementById("user-photo").src = user.photoURL;
+
+                const q = query(collection(db, "schedules"), orderBy("date", "asc"));
+                onSnapshot(q, (snapshot) => {
+                    const c = document.getElementById("schedule-container");
+                    c.innerHTML = snapshot.empty ? '予定はありません' : '';
+                    snapshot.forEach(doc => {
+                        const d = doc.data();
+                        c.innerHTML += `<div style="background:white; padding:8px; margin-bottom:6px; border-radius:6px; border-left:3px solid #d97706;"><b>${d.date}</b>: ${d.title}</div>`;
+                    });
+                });
+            } else {
+                document.getElementById("login-section").classList.remove("hidden");
+                document.getElementById("user-section").classList.add("hidden");
+            }
+        });
+
+        document.getElementById("add-schedule-btn").addEventListener("click", async () => {
+            const date = document.getElementById('event-date').value;
+            const title = document.getElementById('event-title').value;
+            if (!date || !title) return alert('日付と内容を入力してください');
+            try {
+                await addDoc(collection(db, "schedules"), { date, title, createdAt: new Date() });
+                document.getElementById('event-date').value = '';
+                document.getElementById('event-title').value = '';
+            } catch (e) { alert("保存失敗: " + e.message); }
+        });
+    </script>
+</body>
+</html>
