@@ -1,521 +1,280 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>小西家 - わんこファミリーアプリ</title>
-    
-    <!-- スマホホーム画面用アイコン (PWA / Web App) -->
-    <link rel="apple-touch-icon" href="1792306567992.jpg">
-    <link rel="icon" href="1792306567992.jpg">
-    
-    <!-- スマホ・PWA用フルスクリーン設定 -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="小西家">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #fdfbf7;
-            color: #4a3b32;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            padding: 12px;
-            padding-bottom: 40px;
-        }
-        .container {
-            background: #ffffff;
-            padding: 16px;
-            border-radius: 16px;
-            box-shadow: 0 4px 16px rgba(139, 90, 43, 0.06);
-            width: 100%;
-            max-width: 100%;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            border: 2px solid #f3e5d8;
-        }
-        .dog-icon-large {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #d97706;
-            box-shadow: 0 6px 16px rgba(217, 119, 6, 0.2);
-            margin-bottom: 12px;
-        }
-        h1 { font-size: 24px; font-weight: 700; color: #8b5a2b; text-align: center; margin-bottom: 4px; }
-        .subtitle { font-size: 13px; color: #8c7355; margin-bottom: 20px; text-align: center; }
-        
-        .btn {
-            background-color: #d97706;
-            color: #ffffff;
-            border: none;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: bold;
-            width: 100%;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(217, 119, 6, 0.2);
-            transition: opacity 0.2s;
-        }
-        .btn:hover { opacity: 0.9; }
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 12px;
-            width: auto;
-            border-radius: 6px;
-            box-shadow: none;
-        }
-        .btn-logout { background-color: #9ca3af; margin-top: 20px; }
-
-        .hidden { display: none !important; }
-        
-        .user-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #fef3c7;
-            padding: 10px 14px;
-            border-radius: 12px;
-            margin-bottom: 14px;
-        }
-        .user-profile { display: flex; align-items: center; gap: 10px; }
-        .user-photo { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #d97706; }
-        .user-name { font-weight: bold; font-size: 14px; color: #78350f; }
-
-        .tab-nav {
-            display: flex;
-            gap: 4px;
-            background: #f3e5d8;
-            padding: 4px;
-            border-radius: 12px;
-            margin-bottom: 14px;
-        }
-        .tab-btn {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 10px 2px;
-            font-size: 12px;
-            font-weight: bold;
-            color: #8c7355;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        .tab-btn.active {
-            background: #ffffff;
-            color: #d97706;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        .tab-content {
-            display: none;
-            flex: 1;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .tab-content.active { display: flex; }
-
-        .widget-card {
-            background: #fafaf9;
-            border: 1px solid #e7e5e4;
-            border-radius: 12px;
-            padding: 14px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-        }
-        .widget-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #78350f;
-            margin-bottom: 10px;
-        }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .input-field {
-            padding: 10px;
-            border: 1px solid #d6d3d1;
-            border-radius: 8px;
-            font-size: 13px;
-            width: 100%;
-        }
-        textarea.input-field {
-            resize: vertical;
-            min-height: 70px;
-            font-family: inherit;
-        }
-        
-        .list-container {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .item-card {
-            background: #ffffff;
-            border: 1px solid #f3e5d8;
-            border-left: 4px solid #d97706;
-            padding: 10px 12px;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            position: relative;
-        }
-        .item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-right: 28px;
-        }
-        .item-title { font-size: 13px; color: #4a3b32; font-weight: bold; }
-        .item-meta { font-size: 11px; color: #8c7355; }
-        .item-tag {
-            font-size: 10px;
-            background: #fef3c7;
-            color: #78350f;
-            padding: 2px 6px;
-            border-radius: 6px;
-            font-weight: bold;
-        }
-        
-        .action-icon-btn {
-            background: transparent;
-            border: none;
-            color: #d97706;
-            opacity: 0.7;
-            font-size: 15px;
-            cursor: pointer;
-            padding: 2px 4px;
-            border-radius: 4px;
-        }
-        .action-icon-btn:active { opacity: 1; background: #fee2e2; }
-
-        .delete-btn {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-        }
-
-        /* 思考ツリーアコーディオン */
-        .tree-group {
-            background: #ffffff;
-            border: 1px solid #f3e5d8;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-        .tree-header {
-            background: #fffbe8;
-            padding: 12px;
-            font-weight: bold;
-            font-size: 14px;
-            color: #8b5a2b;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            user-select: none;
-        }
-        .tree-header-title {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex: 1;
-        }
-        .tree-body-container {
-            padding: 10px;
-            background: #ffffff;
-            border-top: 1px dashed #f3e5d8;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .branch-node {
-            background: #fafaf9;
-            border: 1px solid #e7e5e4;
-            border-left: 3px solid #d97706;
-            border-radius: 6px;
-            padding: 8px 10px;
-            position: relative;
-        }
-        .branch-text {
-            font-size: 13px;
-            color: #4a3b32;
-            white-space: pre-wrap;
-            line-height: 1.4;
-            padding-right: 48px;
-        }
-        .branch-actions {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            display: flex;
-            gap: 4px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>小西家 - わんこファミリーアプリ</title>
+<link rel="apple-touch-icon" href="1792306567992.jpg">
+<link rel="icon" href="1792306567992.jpg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="小西家">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#fdfbf7;color:#4a3b32;display:flex;flex-direction:column;min-height:100vh;padding:12px;padding-bottom:40px}
+.container{background:#fff;padding:16px;border-radius:16px;box-shadow:0 4px 16px rgba(139,90,43,.06);width:100%;flex:1;display:flex;flex-direction:column;border:2px solid #f3e5d8}
+.dog-icon-large{width:120px;height:120px;border-radius:50%;object-fit:cover;border:4px solid #d97706;box-shadow:0 6px 16px rgba(217,119,6,.2);margin-bottom:12px}
+h1{font-size:24px;font-weight:700;color:#8b5a2b;text-align:center;margin-bottom:4px}
+.subtitle{font-size:13px;color:#8c7355;margin-bottom:20px;text-align:center}
+.btn{background:#d97706;color:#fff;border:none;padding:12px;border-radius:10px;font-size:15px;font-weight:bold;width:100%;cursor:pointer;box-shadow:0 4px 10px rgba(217,119,6,.2)}
+.btn:active{opacity:.85}
+.btn-logout{background:#9ca3af;margin-top:20px}
+.hidden{display:none!important}
+.user-header{display:flex;align-items:center;justify-content:space-between;background:#fef3c7;padding:10px 14px;border-radius:12px;margin-bottom:14px}
+.user-profile{display:flex;align-items:center;gap:10px}
+.user-photo{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #d97706}
+.user-name{font-weight:bold;font-size:14px;color:#78350f}
+.tab-nav{display:flex;gap:4px;background:#f3e5d8;padding:4px;border-radius:12px;margin-bottom:14px}
+.tab-btn{flex:1;background:transparent;border:none;padding:10px 2px;font-size:12px;font-weight:bold;color:#8c7355;border-radius:8px;cursor:pointer}
+.tab-btn.active{background:#fff;color:#d97706;box-shadow:0 2px 5px rgba(0,0,0,.05)}
+.tab-content{display:none;flex:1;flex-direction:column;gap:12px}
+.tab-content.active{display:flex}
+.widget-card{background:#fafaf9;border:1px solid #e7e5e4;border-radius:12px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,.02)}
+.widget-title{font-size:14px;font-weight:bold;color:#78350f;margin-bottom:10px}
+.input-group{display:flex;flex-direction:column;gap:8px}
+.input-field{padding:10px;border:1px solid #d6d3d1;border-radius:8px;font-size:13px;width:100%}
+textarea.input-field{resize:vertical;min-height:70px;font-family:inherit}
+.list-container{display:flex;flex-direction:column;gap:8px}
+.item-card{background:#fff;border:1px solid #f3e5d8;border-left:4px solid #d97706;padding:10px 12px;border-radius:8px;display:flex;flex-direction:column;gap:4px;position:relative}
+.item-header{display:flex;justify-content:space-between;align-items:center;gap:6px;padding-right:28px}
+.item-title{font-size:13px;color:#4a3b32;font-weight:bold}
+.item-meta{font-size:11px;color:#8c7355}
+.item-tag{font-size:10px;background:#fef3c7;color:#78350f;padding:2px 6px;border-radius:6px;font-weight:bold;white-space:nowrap}
+.action-icon-btn{background:transparent;border:none;color:#d97706;opacity:.7;font-size:15px;cursor:pointer;padding:2px 4px;border-radius:4px}
+.action-icon-btn:active{opacity:1;background:#fee2e2}
+.delete-btn{position:absolute;top:8px;right:8px}
+.tree-group{background:#fff;border:1px solid #f3e5d8;border-radius:10px;overflow:hidden;margin-bottom:8px}
+.tree-header{background:#fffbe8;padding:12px;font-weight:bold;font-size:14px;color:#8b5a2b;display:flex;justify-content:space-between;align-items:center;gap:4px;cursor:pointer;user-select:none}
+.tree-header-title{display:flex;align-items:center;gap:6px;flex:1}
+.tree-body-container{padding:10px;background:#fff;border-top:1px dashed #f3e5d8;display:flex;flex-direction:column;gap:8px}
+.branch-node{background:#fafaf9;border:1px solid #e7e5e4;border-left:3px solid #d97706;border-radius:6px;padding:8px 10px;position:relative}
+.branch-text{font-size:13px;color:#4a3b32;white-space:pre-wrap;line-height:1.4;padding-right:48px}
+.branch-actions{position:absolute;top:6px;right:6px;display:flex;gap:4px}
+</style>
 </head>
 <body>
+<div class="container">
+  <div id="login-section" style="margin:auto;text-align:center;display:flex;flex-direction:column;align-items:center;padding:20px">
+    <img src="1792306567992.jpg" class="dog-icon-large" alt="小西家わんこ" onerror="this.style.display='none'">
+    <h1>🐾 小西家 🐾</h1>
+    <p class="subtitle">わんことうるおう、家族の共有アプリ</p>
+    <button class="btn" id="login-btn" onclick="handleGoogleLogin()">🐶 Googleでログイン</button>
+  </div>
 
-    <div class="container">
-        <!-- ログイン前画面 -->
-        <div id="login-section" style="margin: auto; text-align: center; display: flex; flex-direction: column; align-items: center; padding: 20px;">
-            <img src="1792306567992.jpg" class="dog-icon-large" alt="小西家わんこ" onerror="this.style.display='none'">
-            <h1>🐾 小西家 🐾</h1>
-            <p class="subtitle">わんことうるおう、家族の共有アプリ</p>
-            <button class="btn" id="login-btn" onclick="handleGoogleLogin()">🐶 Googleでログイン</button>
-        </div>
-
-        <!-- ログイン後画面 -->
-        <div id="user-section" class="hidden" style="display: flex; flex-direction: column; flex: 1;">
-            <div class="user-header">
-                <div class="user-profile">
-                    <img id="user-photo" class="user-photo" alt="アイコン">
-                    <div class="user-name"><span id="user-name"></span> さん</div>
-                </div>
-                <img src="1792306567992.jpg" style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid #d97706;" alt="小西家わんこ" onerror="this.style.display='none'">
-            </div>
-
-            <!-- タブ切り替えボタン -->
-            <div class="tab-nav">
-                <button class="tab-btn active" onclick="switchTab('schedule', event)">📅 予定</button>
-                <button class="tab-btn" onclick="switchTab('todo', event)">✅ TODO</button>
-                <button class="tab-btn" onclick="switchTab('memo', event)">💡 思考ツリー</button>
-            </div>
-
-            <!-- 1. 予定共有タブ -->
-            <div id="schedule" class="tab-content active">
-                <div class="widget-card">
-                    <div class="widget-title">➕ 予定を追加（自動共有）</div>
-                    <div class="input-group">
-                        <input type="date" id="event-date" class="input-field">
-                        <input type="text" id="event-title" class="input-field" placeholder="予定の内容 (例: 買い物、病院)">
-                        <input type="text" id="event-owner" class="input-field" placeholder="誰の予定か (例: 小西家)">
-                        <button class="btn" id="add-schedule-btn">予定を追加する</button>
-                    </div>
-                </div>
-
-                <div class="widget-card" style="flex: 1; display: flex; flex-direction: column;">
-                    <div class="widget-title">📅 共通予定一覧 (今日以降)</div>
-                    <div id="schedule-container" class="list-container" style="overflow-y: auto; max-height: 260px;">
-                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 2. TODOタブ -->
-            <div id="todo" class="tab-content">
-                <div class="widget-card">
-                    <div class="widget-title">📝 TODOタスクの追加</div>
-                    <div class="input-group">
-                        <input type="text" id="todo-title" class="input-field" placeholder="やることを入力 (例: トイレットペーパー買う)">
-                        <button class="btn" id="add-todo-btn">TODOを追加する</button>
-                    </div>
-                </div>
-
-                <div class="widget-card" style="flex: 1; display: flex; flex-direction: column;">
-                    <div class="widget-title">✅ タスク一覧</div>
-                    <div id="todo-container" class="list-container" style="overflow-y: auto; max-height: 260px;">
-                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3. 思考ツリータブ -->
-            <div id="memo" class="tab-content">
-                <div class="widget-card">
-                    <div class="widget-title">🌳 新しい思考テーマを作成</div>
-                    <div class="input-group">
-                        <input type="text" id="memo-theme" class="input-field" placeholder="テーマ・大見出し (例: デザイン案、旅行計画)">
-                        <textarea id="memo-content" class="input-field" placeholder="最初のメモ・アイデアの詳細"></textarea>
-                        <button class="btn" id="add-memo-btn">テーマを作成する</button>
-                    </div>
-                </div>
-
-                <div class="widget-card" style="flex: 1; display: flex; flex-direction: column;">
-                    <div class="widget-title">💡 思考ツリー（タップで開閉）</div>
-                    <div id="memo-container" class="list-container" style="overflow-y: auto; max-height: 260px;">
-                        <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
-                    </div>
-                </div>
-            </div>
-
-            <button class="btn btn-logout" id="logout-btn">ログアウト</button>
-        </div>
+  <div id="user-section" class="hidden" style="display:flex;flex-direction:column;flex:1">
+    <div class="user-header">
+      <div class="user-profile">
+        <img id="user-photo" class="user-photo" alt="アイコン">
+        <div class="user-name"><span id="user-name"></span> さん</div>
+      </div>
+      <img src="1792306567992.jpg" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #d97706" alt="小西家わんこ" onerror="this.style.display='none'">
     </div>
 
-    <!-- Firebase SDK (Auth & Firestore) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('schedule',event)">📅 予定</button>
+      <button class="tab-btn" onclick="switchTab('todo',event)">✅ TODO</button>
+      <button class="tab-btn" onclick="switchTab('memo',event)">💡 思考ツリー</button>
+    </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDXpUCPANQpTppk1dhOY3B4sENz-7bw08k",
-            authDomain: "family-app-438a1.firebaseapp.com",
-            projectId: "family-app-438a1",
-            storageBucket: "family-app-438a1.firebasestorage.app",
-            messagingSenderId: "793853520735",
-            appId: "1:793853520735:web:bf16ccfeecee2fcd76a4ea"
-        };
+    <div id="schedule" class="tab-content active">
+      <div class="widget-card">
+        <div class="widget-title">➕ 予定を追加（自動共有）</div>
+        <div class="input-group">
+          <input type="date" id="event-date" class="input-field">
+          <input type="text" id="event-title" class="input-field" placeholder="予定の内容 (例: 買い物、病院)">
+          <input type="text" id="event-owner" class="input-field" placeholder="誰の予定か (例: 小西家)">
+          <button class="btn" id="add-schedule-btn">予定を追加する</button>
+        </div>
+      </div>
+      <div class="widget-card" style="flex:1;display:flex;flex-direction:column">
+        <div class="widget-title">📅 共通予定一覧 (今日以降)</div>
+        <div id="schedule-container" class="list-container" style="overflow-y:auto;max-height:260px"><div class="item-meta">読み込み中...</div></div>
+      </div>
+    </div>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
+    <div id="todo" class="tab-content">
+      <div class="widget-card">
+        <div class="widget-title">📝 TODOタスクの追加</div>
+        <div class="input-group">
+          <input type="text" id="todo-title" class="input-field" placeholder="やることを入力 (例: トイレットペーパー買う)">
+          <button class="btn" id="add-todo-btn">TODOを追加する</button>
+        </div>
+      </div>
+      <div class="widget-card" style="flex:1;display:flex;flex-direction:column">
+        <div class="widget-title">✅ タスク一覧</div>
+        <div id="todo-container" class="list-container" style="overflow-y:auto;max-height:260px"><div class="item-meta">読み込み中...</div></div>
+      </div>
+    </div>
 
-        const loginSection = document.getElementById("login-section");
-        const userSection = document.getElementById("user-section");
-        const logoutBtn = document.getElementById("logout-btn");
-        const userName = document.getElementById("user-name");
-        const userPhoto = document.getElementById("user-photo");
+    <div id="memo" class="tab-content">
+      <div class="widget-card">
+        <div class="widget-title">🌳 新しい思考テーマを作成</div>
+        <div class="input-group">
+          <input type="text" id="memo-theme" class="input-field" placeholder="テーマ・大見出し (例: デザイン案、旅行計画)">
+          <textarea id="memo-content" class="input-field" placeholder="最初のメモ・アイデアの詳細"></textarea>
+          <button class="btn" id="add-memo-btn">テーマを作成する</button>
+        </div>
+      </div>
+      <div class="widget-card" style="flex:1;display:flex;flex-direction:column">
+        <div class="widget-title">💡 思考ツリー（タップで開閉）</div>
+        <div id="memo-container" class="list-container" style="overflow-y:auto;max-height:260px"><div class="item-meta">読み込み中...</div></div>
+      </div>
+    </div>
 
-        // ログイン処理をグローバル関数化（ボタンから確実に呼べるように修正）
-        window.handleGoogleLogin = function() {
-            signInWithPopup(auth, provider).catch((error) => {
-                alert("ログインエラー: " + error.message);
-            });
-        };
+    <button class="btn btn-logout" id="logout-btn">ログアウト</button>
+  </div>
+</div>
 
-        logoutBtn.addEventListener("click", () => signOut(auth));
+<!-- 通常のスクリプト：Firebaseが読み込めなくても、タブとログインボタンの反応は残る -->
+<script>
+function switchTab(id,ev){
+  document.querySelectorAll('.tab-content').forEach(function(e){e.classList.toggle('active',e.id===id)});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+  if(ev&&ev.currentTarget)ev.currentTarget.classList.add('active');
+}
+window.handleGoogleLogin=function(){alert('まだ読み込み中です。少し待ってからもう一度押してください。ネットにつながっているかも確認してください。')};
+</script>
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                loginSection.classList.add("hidden");
-                userSection.classList.remove("hidden");
-                userName.textContent = user.displayName || "ユーザー";
-                if (user.photoURL) userPhoto.src = user.photoURL;
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-                if (!document.getElementById("event-owner").value) {
-                    document.getElementById("event-owner").value = user.displayName || "小西家";
-                }
+const firebaseConfig = {
+  apiKey: "AIzaSyDXpUCPANQpTppk1dhOY3B4sENz-7bw08k",
+  authDomain: "family-app-438a1.firebaseapp.com",
+  projectId: "family-app-438a1",
+  storageBucket: "family-app-438a1.firebasestorage.app",
+  messagingSenderId: "793853520735",
+  appId: "1:793853520735:web:bf16ccfeecee2fcd76a4ea"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+const $ = id => document.getElementById(id);
+const col = n => collection(db, "families", "main", n);
+const who = () => auth.currentUser ? (auth.currentUser.displayName || "家族") : "家族";
 
-                listenToSchedules();
-                listenToTodos();
-                listenToMemos();
-            } else {
-                loginSection.classList.remove("hidden");
-                userSection.classList.add("hidden");
-            }
-        });
+function el(tag, cls, text){ const e = document.createElement(tag); if(cls) e.className = cls; if(text !== undefined) e.textContent = text; return e; }
+function iconBtn(label, fn, cls){ const b = el('button', 'action-icon-btn' + (cls ? ' ' + cls : ''), label); b.onclick = e => { e.stopPropagation(); fn(); }; return b; }
+function setList(id, nodes, emptyText){ const c = $(id); c.replaceChildren(); if(!nodes.length){ c.append(el('div','item-meta',emptyText)); return; } nodes.forEach(n => c.append(n)); }
+function showErr(id, e){ $(id).replaceChildren(el('div','item-meta','読み込みエラー: ' + e.message)); }
 
-        // 共通削除処理
-        window.confirmAndDelete = async function(category, docId, title) {
-            const isConfirmed = confirm(`「${title || 'この項目'}」を本当に削除しますか？`);
-            if (!isConfirmed) return;
+// ログイン
+window.handleGoogleLogin = async function(){
+  try { await signInWithPopup(auth, provider); }
+  catch(e){
+    if(e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') return;
+    if(e.code === 'auth/unauthorized-domain') alert('このサイトがFirebaseで許可されていません。\nFirebaseの「Authentication」→「設定」→「承認済みドメイン」に\n「' + location.hostname + '」を追加してください。');
+    else if(e.code === 'auth/popup-blocked') alert('ポップアップがブロックされました。許可してから、もう一度押してください。');
+    else alert('ログインエラー: ' + e.message);
+  }
+};
+$("logout-btn").addEventListener("click", () => signOut(auth));
 
-            try {
-                await deleteDoc(doc(db, "families", "main", category, docId));
-            } catch (error) {
-                alert("削除に失敗しました: " + error.message);
-            }
-        };
+// 共通削除
+window.confirmAndDelete = async function(category, docId, title){
+  if(!confirm(`「${title || 'この項目'}」を本当に削除しますか？`)) return;
+  try { await deleteDoc(doc(db, "families", "main", category, docId)); }
+  catch(e){ alert("削除に失敗しました: " + e.message); }
+};
 
-        // 1. 予定追加
-        document.getElementById("add-schedule-btn").addEventListener("click", async () => {
-            const date = document.getElementById('event-date').value;
-            const title = document.getElementById('event-title').value;
-            const owner = document.getElementById('event-owner').value;
+// 描画
+function renderSchedules(snap){
+  const t = new Date(), today = t.getFullYear() + '-' + String(t.getMonth()+1).padStart(2,'0') + '-' + String(t.getDate()).padStart(2,'0');
+  const nodes = [];
+  snap.forEach(d => {
+    const v = d.data(); if((v.date || '') < today) return;
+    const c = el('div','item-card'), h = el('div','item-header');
+    h.append(el('span','item-title',v.title), el('span','item-tag',v.who || ''));
+    c.append(h, el('div','item-meta',v.date), iconBtn('🗑', () => window.confirmAndDelete('events', d.id, v.title), 'delete-btn'));
+    nodes.push(c);
+  });
+  setList('schedule-container', nodes, '今日以降の予定はありません');
+}
+function renderTodos(snap){
+  const nodes = [];
+  snap.forEach(d => {
+    const v = d.data(), c = el('div','item-card'), h = el('div','item-header'), l = el('label'), cb = document.createElement('input'), t = el('span','item-title',v.t);
+    cb.type = 'checkbox'; cb.checked = !!v.d;
+    cb.onchange = () => updateDoc(doc(db,"families","main","todos",d.id), { d: cb.checked }).catch(e => alert('更新失敗: ' + e.message));
+    if(v.d){ t.style.textDecoration = 'line-through'; t.style.opacity = '.5'; }
+    l.style.cssText = 'display:flex;gap:8px;align-items:center'; l.append(cb, t);
+    h.append(l, el('span','item-tag',v.who || ''));
+    c.append(h, iconBtn('🗑', () => window.confirmAndDelete('todos', d.id, v.t), 'delete-btn'));
+    nodes.push(c);
+  });
+  setList('todo-container', nodes, 'タスクはありません');
+}
+const openIds = new Set();
+async function saveBranches(id, arr){ try { await updateDoc(doc(db,"families","main","memos",id), { branches: arr }); } catch(e){ alert('保存失敗: ' + e.message); } }
+function addBranch(id, br){ const t = prompt('追加するメモ・アイデアを入力してください:'); if(t) saveBranches(id, [...br, t]); }
+function editBranch(id, i, br){ const t = prompt('メモの内容を編集:', br[i]); if(t === null) return; const a = [...br]; if(t.trim() === '') a.splice(i,1); else a[i] = t; saveBranches(id, a); }
+function deleteBranch(id, i, br){ if(!confirm('このメモを削除しますか？')) return; const a = [...br]; a.splice(i,1); saveBranches(id, a); }
+function renderMemos(snap){
+  const nodes = [];
+  snap.forEach(d => {
+    const v = d.data(), br = v.branches || [], g = el('div','tree-group'), h = el('div','tree-header'), ti = el('span','tree-header-title');
+    const ic = el('span','', openIds.has(d.id) ? '📂' : '📁');
+    const body = el('div', 'tree-body-container' + (openIds.has(d.id) ? '' : ' hidden'));
+    ti.append(ic, el('span','', v.theme + '（' + br.length + '）'));
+    h.onclick = () => { const closed = body.classList.toggle('hidden'); if(closed) openIds.delete(d.id); else openIds.add(d.id); ic.textContent = closed ? '📁' : '📂'; };
+    h.append(ti, el('span','item-tag',v.who || ''), iconBtn('＋', () => addBranch(d.id, br)), iconBtn('🗑', () => window.confirmAndDelete('memos', d.id, v.theme)));
+    br.forEach((txt, i) => {
+      const n = el('div','branch-node'), a = el('div','branch-actions');
+      a.append(iconBtn('✏️', () => editBranch(d.id, i, br)), iconBtn('🗑', () => deleteBranch(d.id, i, br)));
+      n.append(el('div','branch-text',txt), a); body.append(n);
+    });
+    g.append(h, body); nodes.push(g);
+  });
+  setList('memo-container', nodes, 'まだテーマがありません');
+}
 
-            if (!date || !title) return alert('日付と内容を入力してください');
-            try {
-                await addDoc(collection(db, "families", "main", "events"), {
-                    date, title, who: owner || "小西家", ts: Date.now()
-                });
-                document.getElementById('event-date').value = '';
-                document.getElementById('event-title').value = '';
-            } catch (e) { alert("保存失敗: " + e.message); }
-        });
+// リアルタイム購読
+let unsubs = [];
+function listenAll(){
+  if(unsubs.length) return;
+  unsubs.push(onSnapshot(query(col("events"), orderBy("date")), renderSchedules, e => showErr('schedule-container', e)));
+  unsubs.push(onSnapshot(query(col("todos"), orderBy("ts","desc")), renderTodos, e => showErr('todo-container', e)));
+  unsubs.push(onSnapshot(query(col("memos"), orderBy("ts","desc")), renderMemos, e => showErr('memo-container', e)));
+}
 
-        // 2. TODO追加
-        document.getElementById("add-todo-btn").addEventListener("click", async () => {
-            const title = document.getElementById('todo-title').value;
-            if (!title) return alert('タスクを入力してください');
-            try {
-                await addDoc(collection(db, "families", "main", "todos"), {
-                    t: title, d: false, who: auth.currentUser ? (auth.currentUser.displayName || "家族") : "家族", ts: Date.now()
-                });
-                document.getElementById('todo-title').value = '';
-            } catch (e) { alert("保存失敗: " + e.message); }
-        });
+onAuthStateChanged(auth, user => {
+  if(user){
+    $("login-section").classList.add("hidden");
+    $("user-section").classList.remove("hidden");
+    $("user-name").textContent = user.displayName || "ユーザー";
+    if(user.photoURL) $("user-photo").src = user.photoURL;
+    if(!$("event-owner").value) $("event-owner").value = user.displayName || "小西家";
+    listenAll();
+  } else {
+    unsubs.forEach(u => u()); unsubs = [];
+    $("login-section").classList.remove("hidden");
+    $("user-section").classList.add("hidden");
+  }
+});
 
-        // 3. 思考ツリーテーマ作成
-        document.getElementById("add-memo-btn").addEventListener("click", async () => {
-            const theme = document.getElementById('memo-theme').value;
-            const content = document.getElementById('memo-content').value;
-
-            if (!theme) return alert('テーマを入力してください');
-            try {
-                const branches = content ? [content] : [];
-                await addDoc(collection(db, "families", "main", "memos"), {
-                    theme: theme,
-                    branches: branches,
-                    who: auth.currentUser ? (auth.currentUser.displayName || "家族") : "家族",
-                    ts: Date.now()
-                });
-                document.getElementById('memo-theme').value = '';
-                document.getElementById('memo-content').value = '';
-            } catch (e) { alert("保存失敗: " + e.message); }
-        });
-
-        // 枝メモ追加
-        window.addBranch = async function(docId, currentBranchesJson) {
-            const newText = prompt("追加するメモ・アイデアを入力してください:");
-            if (!newText) return;
-
-            try {
-                const currentBranches = JSON.parse(decodeURIComponent(currentBranchesJson));
-                currentBranches.push(newText);
-                await updateDoc(doc(db, "families", "main", "memos", docId), {
-                    branches: currentBranches
-                });
-            } catch (e) { alert("追加失敗: " + e.message); }
-        };
-
-        // 枝メモ編集
-        window.editBranch = async function(docId, index, currentTextJson, currentBranchesJson) {
-            const currentText = decodeURIComponent(currentTextJson);
-            const editedText = prompt("メモの内容を編集:", currentText);
-            if (editedText === null) return;
-
-            try {
-                const currentBranches = JSON.parse(decodeURIComponent(currentBranchesJson));
-                if (editedText.trim() === "") {
-                    currentBranches.splice(index, 1);
-                } else {
-                    currentBranches[index] = editedText;
-                }
-                await updateDoc(doc(db, "families", "main", "memos", docId), {
-                    branches: currentBranches
-                });
-            } catch (e) { alert("編集失敗: " + e.message); }
-        };
-
-        // 枝メモ削除
-        window.deleteBranch = async function(docId, index, currentBranchesJson) {
-            if (!confirm("このメモを削除しますか？")) return;
-            try {
-                const currentBranches = JSON.parse(decodeURIComponent(currentBranchesJson));
-                currentBranches.splice(index, 1);
-                await updateDoc(doc(db, "families", "main", "memos", docId), {
-                    branches: currentBranches
-                });
-            } catch (e) { alert("削除失敗: " + e.message); }
-        };
-
-        // アコーディオン開閉
-        window.toggleTree = function(docId) {
-            const target = document.getElementById("tree-body-" + docId);
-            const icon = document.getElementById("tree-icon-" + docId);
-            if (target) {
-                if (target.classList.contains("hidden")) {
-                    target.classList.remove("hidden");
-                    if (icon) icon.textContent = "📂";
-                } else {
-              
+// 追加
+$("add-schedule-btn").addEventListener("click", async () => {
+  const date = $('event-date').value, title = $('event-title').value, owner = $('event-owner').value;
+  if(!date || !title) return alert('日付と内容を入力してください');
+  try { await addDoc(col("events"), { date, title, who: owner || "小西家", ts: Date.now() }); $('event-date').value = ''; $('event-title').value = ''; }
+  catch(e){ alert("保存失敗: " + e.message); }
+});
+$("add-todo-btn").addEventListener("click", async () => {
+  const title = $('todo-title').value;
+  if(!title) return alert('タスクを入力してください');
+  try { await addDoc(col("todos"), { t: title, d: false, who: who(), ts: Date.now() }); $('todo-title').value = ''; }
+  catch(e){ alert("保存失敗: " + e.message); }
+});
+$("add-memo-btn").addEventListener("click", async () => {
+  const theme = $('memo-theme').value, content = $('memo-content').value;
+  if(!theme) return alert('テーマを入力してください');
+  try { await addDoc(col("memos"), { theme, branches: content ? [content] : [], who: who(), ts: Date.now() }); $('memo-theme').value = ''; $('memo-content').value = ''; }
+  catch(e){ alert("保存失敗: " + e.message); }
+});
+</script>
+</body>
+</html>
