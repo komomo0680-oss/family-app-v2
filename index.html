@@ -64,6 +64,13 @@
             transition: opacity 0.2s;
         }
         .btn:hover { opacity: 0.9; }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            width: auto;
+            border-radius: 6px;
+            box-shadow: none;
+        }
         .btn-logout { background-color: #9ca3af; margin-top: 20px; }
 
         .hidden { display: none !important; }
@@ -81,7 +88,6 @@
         .user-photo { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #d97706; }
         .user-name { font-weight: bold; font-size: 14px; color: #78350f; }
 
-        /* タブ切り替え（3つ並ぶように調整） */
         .tab-nav {
             display: flex;
             gap: 4px;
@@ -142,7 +148,7 @@
         }
         textarea.input-field {
             resize: vertical;
-            min-height: 80px;
+            min-height: 70px;
             font-family: inherit;
         }
         
@@ -160,11 +166,13 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
+            position: relative;
         }
         .item-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding-right: 28px;
         }
         .item-title { font-size: 13px; color: #4a3b32; font-weight: bold; }
         .item-meta { font-size: 11px; color: #8c7355; }
@@ -177,24 +185,79 @@
             font-weight: bold;
         }
         
-        .tree-node {
+        .action-icon-btn {
+            background: transparent;
+            border: none;
+            color: #d97706;
+            opacity: 0.7;
+            font-size: 15px;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        .action-icon-btn:active { opacity: 1; background: #fee2e2; }
+
+        .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+        }
+
+        /* 思考ツリーアコーディオン */
+        .tree-group {
             background: #ffffff;
-            border: 1px dashed #d97706;
+            border: 1px solid #f3e5d8;
             border-radius: 10px;
-            padding: 12px;
+            overflow: hidden;
             margin-bottom: 8px;
         }
-        .tree-title {
+        .tree-header {
+            background: #fffbe8;
+            padding: 12px;
             font-weight: bold;
             font-size: 14px;
             color: #8b5a2b;
-            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
         }
-        .tree-body {
+        .tree-header-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+        }
+        .tree-body-container {
+            padding: 10px;
+            background: #ffffff;
+            border-top: 1px dashed #f3e5d8;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .branch-node {
+            background: #fafaf9;
+            border: 1px solid #e7e5e4;
+            border-left: 3px solid #d97706;
+            border-radius: 6px;
+            padding: 8px 10px;
+            position: relative;
+        }
+        .branch-text {
             font-size: 13px;
             color: #4a3b32;
             white-space: pre-wrap;
-            line-height: 1.5;
+            line-height: 1.4;
+            padding-right: 48px;
+        }
+        .branch-actions {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            display: flex;
+            gap: 4px;
         }
     </style>
 </head>
@@ -221,9 +284,9 @@
 
             <!-- タブ切り替えボタン -->
             <div class="tab-nav">
-                <button class="tab-btn active" onclick="switchTab('schedule')">📅 予定</button>
-                <button class="tab-btn" onclick="switchTab('todo')">✅ TODO</button>
-                <button class="tab-btn" onclick="switchTab('memo')">💡 思考ツリー</button>
+                <button class="tab-btn active" onclick="switchTab('schedule', event)">📅 予定</button>
+                <button class="tab-btn" onclick="switchTab('todo', event)">✅ TODO</button>
+                <button class="tab-btn" onclick="switchTab('memo', event)">💡 思考ツリー</button>
             </div>
 
             <!-- 1. 予定共有タブ -->
@@ -239,7 +302,7 @@
                 </div>
 
                 <div class="widget-card" style="flex: 1; display: flex; flex-direction: column;">
-                    <div class="widget-title">📅 共通予定一覧</div>
+                    <div class="widget-title">📅 共通予定一覧 (今日以降)</div>
                     <div id="schedule-container" class="list-container" style="overflow-y: auto; max-height: 260px;">
                         <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
                     </div>
@@ -267,16 +330,16 @@
             <!-- 3. 思考ツリータブ -->
             <div id="memo" class="tab-content">
                 <div class="widget-card">
-                    <div class="widget-title">🌳 アイデア・思考メモを整理</div>
+                    <div class="widget-title">🌳 新しい思考テーマを作成</div>
                     <div class="input-group">
-                        <input type="text" id="memo-theme" class="input-field" placeholder="テーマ・見出し (例: デザイン案、旅行計画)">
-                        <textarea id="memo-content" class="input-field" placeholder="思考の詳細、メモ、階層箇条書きなど"></textarea>
-                        <button class="btn" id="add-memo-btn">メモを記録する</button>
+                        <input type="text" id="memo-theme" class="input-field" placeholder="テーマ・大見出し (例: デザイン案、旅行計画)">
+                        <textarea id="memo-content" class="input-field" placeholder="最初のメモ・アイデアの詳細"></textarea>
+                        <button class="btn" id="add-memo-btn">テーマを作成する</button>
                     </div>
                 </div>
 
                 <div class="widget-card" style="flex: 1; display: flex; flex-direction: column;">
-                    <div class="widget-title">💡 思考ツリー・ノート</div>
+                    <div class="widget-title">💡 思考ツリー（タップで開閉）</div>
                     <div id="memo-container" class="list-container" style="overflow-y: auto; max-height: 260px;">
                         <div style="font-size: 12px; color: #8c7355;">読み込み中...</div>
                     </div>
@@ -291,9 +354,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // 4人の家族が使っている本番アプリのデータベース設定に統一
         const firebaseConfig = {
             apiKey: "AIzaSyDXpUCPANQpTppk1dhOY3B4sENz-7bw08k",
             authDomain: "family-app-438a1.firebaseapp.com",
@@ -343,6 +405,18 @@
             }
         });
 
+        // 共通削除処理
+        window.confirmAndDelete = async function(category, docId, title) {
+            const isConfirmed = confirm(`「${title || 'この項目'}」を本当に削除しますか？`);
+            if (!isConfirmed) return;
+
+            try {
+                await deleteDoc(doc(db, "families", "main", category, docId));
+            } catch (error) {
+                alert("削除に失敗しました: " + error.message);
+            }
+        };
+
         // 1. 予定追加
         document.getElementById("add-schedule-btn").addEventListener("click", async () => {
             const date = document.getElementById('event-date').value;
@@ -351,7 +425,6 @@
 
             if (!date || !title) return alert('日付と内容を入力してください');
             try {
-                // もう一つのアプリと共有しているパス（families/main/events）に合わせる
                 await addDoc(collection(db, "families", "main", "events"), {
                     date, title, who: owner || "小西家", ts: Date.now()
                 });
@@ -365,7 +438,6 @@
             const title = document.getElementById('todo-title').value;
             if (!title) return alert('タスクを入力してください');
             try {
-                // もう一つのアプリと共有しているパス（families/main/todos）に合わせる
                 await addDoc(collection(db, "families", "main", "todos"), {
                     t: title, d: false, who: auth.currentUser ? (auth.currentUser.displayName || "家族") : "家族", ts: Date.now()
                 });
@@ -373,82 +445,77 @@
             } catch (e) { alert("保存失敗: " + e.message); }
         });
 
-        // 3. 思考ツリーメモ追加
+        // 3. 思考ツリーテーマ作成
         document.getElementById("add-memo-btn").addEventListener("click", async () => {
             const theme = document.getElementById('memo-theme').value;
             const content = document.getElementById('memo-content').value;
 
-            if (!theme || !content) return alert('テーマとメモ内容を入力してください');
+            if (!theme) return alert('テーマを入力してください');
             try {
-                // もう一つのアプリと共有しているパス（families/main/memos）に合わせる
+                const branches = content ? [content] : [];
                 await addDoc(collection(db, "families", "main", "memos"), {
-                    t: "【" + theme + "】\n" + content, who: auth.currentUser ? (auth.currentUser.displayName || "家族") : "家族", ts: Date.now()
+                    theme: theme,
+                    branches: branches,
+                    who: auth.currentUser ? (auth.currentUser.displayName || "家族") : "家族",
+                    ts: Date.now()
                 });
                 document.getElementById('memo-theme').value = '';
                 document.getElementById('memo-content').value = '';
             } catch (e) { alert("保存失敗: " + e.message); }
         });
 
-        function listenToSchedules() {
-            const q = query(collection(db, "families", "main", "events"), orderBy("date", "asc"));
-            onSnapshot(q, (snapshot) => {
-                const container = document.getElementById("schedule-container");
-                container.innerHTML = snapshot.empty ? '<div style="font-size: 12px; color: #8c7355;">予定はありません</div>' : '';
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    container.innerHTML += `
-                        <div class="item-card">
-                            <div class="item-header">
-                                <span class="item-title">${data.title}</span>
-                                <span class="item-tag">${data.who || "小西家"}</span>
-                            </div>
-                            <div class="item-meta">📅 ${data.date} ${data.time ? data.time : ''}</div>
-                        </div>`;
-                });
-            });
-        }
+        // 枝メモ追加
+        window.addBranch = async function(docId, currentBranchesJson) {
+            const newText = prompt("追加するメモ・アイデアを入力してください:");
+            if (!newText) return;
 
-        function listenToTodos() {
-            const q = query(collection(db, "families", "main", "todos"), orderBy("ts", "desc"));
-            onSnapshot(q, (snapshot) => {
-                const container = document.getElementById("todo-container");
-                container.innerHTML = snapshot.empty ? '<div style="font-size: 12px; color: #8c7355;">TODOはありません</div>' : '';
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    container.innerHTML += `
-                        <div class="item-card">
-                            <div class="item-title">☑️ ${data.t}</div>
-                            <div class="item-meta">担当: ${data.who || "家族"}</div>
-                        </div>`;
+            try {
+                const currentBranches = JSON.parse(decodeURIComponent(currentBranchesJson));
+                currentBranches.push(newText);
+                await updateDoc(doc(db, "families", "main", "memos", docId), {
+                    branches: currentBranches
                 });
-            });
-        }
+            } catch (e) { alert("追加失敗: " + e.message); }
+        };
 
-        function listenToMemos() {
-            const q = query(collection(db, "families", "main", "memos"), orderBy("ts", "desc"));
-            onSnapshot(q, (snapshot) => {
-                const container = document.getElementById("memo-container");
-                container.innerHTML = snapshot.empty ? '<div style="font-size: 12px; color: #8c7355;">メモはまだありません</div>' : '';
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    container.innerHTML += `
-                        <div class="tree-node">
-                            <div class="tree-body" style="white-space: pre-wrap;">${data.t}</div>
-                            <div class="item-meta" style="margin-top:6px; text-align:right;">記録: ${data.who || "家族"}</div>
-                        </div>`;
+        // 枝メモ編集
+        window.editBranch = async function(docId, index, currentTextJson, currentBranchesJson) {
+            const currentText = decodeURIComponent(currentTextJson);
+            const editedText = prompt("メモの内容を編集:", currentText);
+            if (editedText === null) return;
+
+            try {
+                const currentBranches = JSON.parse(decodeURIComponent(currentBranchesJson));
+                if (editedText.trim() === "") {
+                    currentBranches.splice(index, 1); // 空文字の場合は削除
+                } else {
+                    currentBranches[index] = editedText;
+                }
+                await updateDoc(doc(db, "families", "main", "memos", docId), {
+                    branches: currentBranches
                 });
-            });
-        }
-    </script>
+            } catch (e) { alert("編集失敗: " + e.message); }
+        };
 
-    <script>
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            const targetTab = document.getElementById(tabId);
-            if (targetTab) targetTab.classList.add('active');
-            if (event && event.currentTarget) event.currentTarget.classList.add('active');
-        }
-    </script>
-</body>
-</html>
+        // 枝メモ削除
+        window.deleteBranch = async function(docId, index, currentBranchesJson) {
+            if (!confirm("このメモを削除しますか？")) return;
+            try {
+                const currentBranches = JSON.parse(decodeURIComponent(currentBranchesJson));
+                currentBranches.splice(index, 1);
+                await updateDoc(doc(db, "families", "main", "memos", docId), {
+                    branches: currentBranches
+                });
+            } catch (e) { alert("削除失敗: " + e.message); }
+        };
+
+        // アコーディオン開閉
+        window.toggleTree = function(docId) {
+            const target = document.getElementById("tree-body-" + docId);
+            const icon = document.getElementById("tree-icon-" + docId);
+            if (target) {
+                if (target.classList.contains("hidden")) {
+                    target.classList.remove("hidden");
+                    if (icon) icon.textContent = "📂";
+                } else {
+         
