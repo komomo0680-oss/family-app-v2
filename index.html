@@ -269,7 +269,7 @@
             <img src="1792306567992.jpg" class="dog-icon-large" alt="小西家わんこ" onerror="this.style.display='none'">
             <h1>🐾 小西家 🐾</h1>
             <p class="subtitle">わんことうるおう、家族の共有アプリ</p>
-            <button class="btn" id="login-btn">🐶 Googleでログイン</button>
+            <button class="btn" id="login-btn" onclick="handleGoogleLogin()">🐶 Googleでログイン</button>
         </div>
 
         <!-- ログイン後画面 -->
@@ -372,16 +372,16 @@
 
         const loginSection = document.getElementById("login-section");
         const userSection = document.getElementById("user-section");
-        const loginBtn = document.getElementById("login-btn");
         const logoutBtn = document.getElementById("logout-btn");
         const userName = document.getElementById("user-name");
         const userPhoto = document.getElementById("user-photo");
 
-        loginBtn.addEventListener("click", () => {
+        // ログイン処理をグローバル関数化（ボタンから確実に呼べるように修正）
+        window.handleGoogleLogin = function() {
             signInWithPopup(auth, provider).catch((error) => {
                 alert("ログインエラー: " + error.message);
             });
-        });
+        };
 
         logoutBtn.addEventListener("click", () => signOut(auth));
 
@@ -487,7 +487,7 @@
             try {
                 const currentBranches = JSON.parse(decodeURIComponent(currentBranchesJson));
                 if (editedText.trim() === "") {
-                    currentBranches.splice(index, 1); // 空文字の場合は削除
+                    currentBranches.splice(index, 1);
                 } else {
                     currentBranches[index] = editedText;
                 }
@@ -518,4 +518,4 @@
                     target.classList.remove("hidden");
                     if (icon) icon.textContent = "📂";
                 } else {
-         
+              
